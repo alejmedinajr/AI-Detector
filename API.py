@@ -10,6 +10,7 @@ def first_example():
 @app.get("/chatResponse")
 def chatGPTResponse(prompt):
     # API key no longer functioning. Need to generate new one.
+    #
     client = OpenAI(api_key=config.chatgpt_api_key)
     chat_completion = client.chat.completions.create(
     messages=[
