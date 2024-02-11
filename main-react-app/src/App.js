@@ -1,7 +1,10 @@
+import "./App.css"
+import PromptForm from "./PromptForm";
+
 function App() {
   return (
     <div className="App">
-      <h1>Hello World!</h1>
+      <PromptForm />
     </div>
   );
 }
