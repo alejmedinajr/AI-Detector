@@ -6,6 +6,12 @@ from pydantic import BaseModel
 
 import config
 
+
+import pathlib
+import textwrap
+
+import google.generativeai as genai
+
 # pip install python-multipart, openai, fastapi, uvicorn
 app = FastAPI()
 
@@ -37,6 +43,15 @@ def chatGPTResponse(prompt):
     )
     chatResponse = chat_completion.choices[0].message.content
     return {"ChatResponse": chatResponse}
+
+@app.get("/geminiResponse")
+def geminiResponse(prompt):
+
+    genai.configure(api_key=config.gemini_api_key)
+    model = genai.GenerativeModel('gemini-pro')
+    response = model.generate_content(prompt)
+    return {"GeminiResponse": response.text}
+     
 
 class UserQuery(BaseModel):
     prompt: str
