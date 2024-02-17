@@ -1,0 +1,23 @@
+{
+	"Faculty1":
+	{
+		"FirstName": "Jacob",
+		"LastName": "Schrum",
+        "Email": "schrum2@southwestern.edu" ,
+		"University": "Southwestern University"
+	},
+	"Faculty2":
+	{
+		"FirstName": "Barbara",
+		"LastName": "Anthony",
+        "Email": "anthonyb@southwestern.edu" ,
+		"University": "Southwestern University"
+	},
+	"Faculty3":
+	{
+		"FirstName": "Arjun",
+		"LastName": "Chandrasekhar",
+        "Email": "chandrasa@southwestern.edu" ,
+		"University": "Southwestern University"
+	}
+}
