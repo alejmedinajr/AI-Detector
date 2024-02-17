@@ -4,7 +4,7 @@ import PromptForm from "./PromptForm";
 function App() {
   return (
     <div className="App">
-      <PromptForm />
+      <PromptForm /> 
     </div>
   );
 }

@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Form, Body
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from openai import OpenAI
@@ -6,15 +6,12 @@ from pydantic import BaseModel
 
 import config
 
-
-import pathlib
-import textwrap
-
 import google.generativeai as genai
 
 # pip install python-multipart, openai, fastapi, uvicorn
-app = FastAPI()
+app = FastAPI() # initializing new Restful API 
 
+# code to prevent erros that occur when trying to make end to end connections where both ends are localhost
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -22,27 +19,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-@app.get("/")
-def first_example():
-	return {"GFG Example": "FastAPI"}
-
-@app.get("/chatResponse")
-def chatGPTResponse(prompt):
-    # API key no longer functioning. Need to generate new one.
-    #
-    client = OpenAI(api_key=config.chatgpt_api_key)
-    chat_completion = client.chat.completions.create(
-    messages=[
-            {
-                "role": "user",
-                "content": prompt,
-            }
-        ],
-        model="gpt-4-1106-preview",
-    )
-    chatResponse = chat_completion.choices[0].message.content
-    return {"ChatResponse": chatResponse}
 
 @app.get("/geminiResponse")
 def geminiResponse(prompt):
@@ -52,24 +28,23 @@ def geminiResponse(prompt):
     response = model.generate_content(prompt)
     return {"GeminiResponse": response.text}
      
-
+# class definition for what a user query object would have (used to define what the post function below requires as parameter)
 class UserQuery(BaseModel):
     prompt: str
 
-@app.post('/chatgpt_query/')
-async def get_user_query(user_prompt: UserQuery):
-    print("here")
-    #user_prompt = await user_query
-    client = OpenAI(api_key=config.chatgpt_api_key)
-    chat_completion = client.chat.completions.create(
-        messages=[
+@app.post('/chatgpt_query/') # this function needs to be defined as post since it relies on form data from the react app
+async def get_user_query(user_prompt: UserQuery): # this function needs to be asynchronous since it is waiting for the parameter from the react app
+    print("loading") # small message just so the connection from react app is known to have succeeded
+    client = OpenAI(api_key=config.chatgpt_api_key) # setting up the chatgpt client using the api key from the config file
+    chat_completion = client.chat.completions.create( # chat completion allows for a response to a prompt to be made
+        messages=[ # messages can be plural but for now only one message is being sent to the api
             {
-                "role": "user",
-                "content": user_prompt.prompt,
+                "role": "user", # standard role is user
+                "content": user_prompt.prompt, # the prompt that is actually sent to the api 
             }
         ],
-        model="gpt-4-1106-preview",
+        model="gpt-4-1106-preview", # chatgpt model used
     )
-    api_response = chat_completion.choices[0].message.content
-    print(api_response)
-    return {"Response":api_response}
+    api_response = chat_completion.choices[0].message.content # limiting the response to only one for now
+    print(api_response) # printing the response as another sign the connection and query to chatgpt worked (displays in terminal)
+    return {"Response":api_response} # returning the response allows it to be used by the react-app
