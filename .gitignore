@@ -1,2 +1,5 @@
 # Ignore config file that contains API Keys
 config.py
+firebase_adminsdk.json
+*.pyc
+.DS_Store
