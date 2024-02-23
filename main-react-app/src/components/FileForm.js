@@ -7,11 +7,27 @@ function FileForm(){
         setFile(event.target.files[0])
     }
 
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         event.preventDefault();
 
         const formData = new FormData();
-        formData.append('file_upload');
+        formData.append('file_upload', file);
+
+        try {
+            const endpoint = "http://localhost:8000/uploadfile/"
+            const response = await fetch(endpoint, {
+                method: "POST",
+                body: formData      
+            });
+
+            if (response.ok){
+                console.log("File uploaded sucessfully!");
+            } else { 
+                console.log("Failed to upload file.");
+            }
+        } catch(e){
+            console.error(e);
+        }
     }
 
     return (

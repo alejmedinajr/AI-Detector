@@ -1,5 +1,6 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from pathlib import Path
 
 from openai import OpenAI
 from pydantic import BaseModel
@@ -7,6 +8,8 @@ from pydantic import BaseModel
 import config
 
 import google.generativeai as genai
+
+UPLOAD_DIR = Path() / 'uploads'
 
 # pip install python-multipart, openai, fastapi, uvicorn
 app = FastAPI() # initializing new Restful API 
@@ -48,3 +51,12 @@ async def get_user_query(user_prompt: UserQuery): # this function needs to be as
     api_response = chat_completion.choices[0].message.content # limiting the response to only one for now
     print(api_response) # printing the response as another sign the connection and query to chatgpt worked (displays in terminal)
     return {"Response":api_response} # returning the response allows it to be used by the react-app
+
+@app.post('/uploadfile/') # this function needs to be defined as post since it relies on form data from the react app
+async def uploadFile(file_upload: UploadFile):
+    data = await file_upload.read()
+    save = UPLOAD_DIR / file_upload.filename
+    with open(save, 'wb') as f:
+        f.write(data)
+
+    return {"filenames": file_upload.filename}
