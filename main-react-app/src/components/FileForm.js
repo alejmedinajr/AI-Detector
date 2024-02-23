@@ -1,17 +1,19 @@
 import { useState } from "react";
 
 function FileForm(){
-    const [file, setFile] = useState(null);
+    const [files, setFiles] = useState([]);
     
     const handleFileInputChange = (event) => {
-        setFile(event.target.files[0])
+        setFiles(Array.from(event.target.files))
     }
 
     const handleSubmit = async (event) => {
         event.preventDefault();
 
         const formData = new FormData();
-        formData.append('file_upload', file);
+        files.forEach(file => {
+            formData.append('file_uploads', file);
+        });
 
         try {
             const endpoint = "http://localhost:8000/uploadfile/"
@@ -36,12 +38,11 @@ function FileForm(){
 
             <form onSubmit={handleSubmit}>
                 <div style={{marginBottom: "20px"}}>
-                    <input type="file" onChange={handleFileInputChange} />
+                    <input type="file" onChange={handleFileInputChange} multiple />
                 </div>
                 
                 <button type="submit">Upload</button>
             </form>
-            { file && <p>{file.name}</p>}
         </div>
     )
 }

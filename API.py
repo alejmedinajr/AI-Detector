@@ -53,10 +53,11 @@ async def get_user_query(user_prompt: UserQuery): # this function needs to be as
     return {"Response":api_response} # returning the response allows it to be used by the react-app
 
 @app.post('/uploadfile/') # this function needs to be defined as post since it relies on form data from the react app
-async def uploadFile(file_upload: UploadFile):
-    data = await file_upload.read()
-    save = UPLOAD_DIR / file_upload.filename
-    with open(save, 'wb') as f:
-        f.write(data)
+async def uploadFile(file_uploads: list[UploadFile]):
+    for file_upload in file_uploads:
+        data = await file_upload.read()
+        save = UPLOAD_DIR / file_upload.filename
+        with open(save, 'wb') as f:
+            f.write(data)
 
-    return {"filenames": file_upload.filename}
+    return {"filenames": [f.filename for f in file_uploads]}
