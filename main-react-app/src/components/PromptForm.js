@@ -10,7 +10,7 @@ function PromptForm() {
         event.preventDefault();
 
         try {
-            const endpoint = "http://localhost:8000/chatgpt_query/";          
+            const endpoint = "http://localhost:8000/form_submission/";          
             const response = await fetch(endpoint, {
                 method: "POST",
                 headers: {

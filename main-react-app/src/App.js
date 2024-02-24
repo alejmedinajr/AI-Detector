@@ -1,5 +1,5 @@
 import "./App.css"
-import PromptForm from "./PromptForm";
+import PromptForm from "./components/PromptForm";
 import FileForm from "./components/FileForm";
 import { IconButton } from "@chakra-ui/button";
 import { useColorMode } from "@chakra-ui/color-mode";
