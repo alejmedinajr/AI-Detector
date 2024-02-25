@@ -3,3 +3,4 @@ config.py
 firebase_adminsdk.json
 *.pyc
 .DS_Store
+uploads/

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Button, Flex, Heading, Text } from "@chakra-ui/react";
 
 function FileForm(){
     const [files, setFiles] = useState([]);
@@ -34,14 +35,28 @@ function FileForm(){
 
     return (
         <div>
-            <h1>Upload File</h1>
+            <Heading marginBottom="2">Upload File</Heading>
 
             <form onSubmit={handleSubmit}>
-                <div style={{marginBottom: "20px"}}>
-                    <input type="file" onChange={handleFileInputChange} multiple />
-                </div>
-                
-                <button type="submit">Upload</button>
+                <Flex direction="column">
+                    {/* Wrapping file input into Chakra UI Button component */}
+                    <Flex marginBottom="3">
+                        <Button as="label" htmlFor="fileInput" colorScheme="blue" cursor="pointer">
+                            Select File
+                            <input
+                                id="fileInput"
+                                type="file"
+                                onChange={handleFileInputChange}
+                                multiple
+                                style={{ display: "none" }}
+                            />
+                        </Button>
+                        <Text marginLeft="2">{files.length} files selected</Text>
+                    </Flex>
+                    
+                    {/* Chakra UI button component for upload */}
+                    <Button type="submit" colorScheme="blue">Upload</Button>
+                </Flex>
             </form>
         </div>
     )

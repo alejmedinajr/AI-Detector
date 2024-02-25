@@ -4,10 +4,15 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+import {ChakraProvider, ColorModeScript} from "@chakra-ui/react";
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
+    <ChakraProvider>
+      <ColorModeScript initialColorMode='light'></ColorModeScript>
+      <App />
+    </ChakraProvider>
   </React.StrictMode>
 );
 
