@@ -1,54 +1,61 @@
 import React, { useState } from 'react';
 
-// Component for a form to submit prompts and display responses
 function PromptForm() {
-    // State hooks for prompt input and response display
     const [prompt, setPrompt] = useState("");
     const [response, setResponse] = useState("");
+    const [service, setService] = useState("chatgpt");
 
-    const handleSubmit = async (event) => { // Function to handle form submission
-        event.preventDefault(); // Prevent default form submission behavior
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        let endpoint = "";
+
+        if (service === "chatgpt") {
+            endpoint = "http://localhost:8000/chatgpt_query/";
+        } else if (service === "gemini") {
+            endpoint = "http://localhost:8000/geminiResponse";
+        }
 
         try {
-            const endpoint = "http://localhost:8000/chatgpt_query/"; // Define endpoint for querying the chatgpt api          
-            const response = await fetch(endpoint, { // Send a POST request to the endpoint with prompt data
-                method: "POST", // Specify POST method
+            const serverResponse = await fetch(endpoint, {
+                method: "POST",
                 headers: {
-                    'Content-Type': 'application/json' // Set content type to JSON
+                    'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    "prompt": prompt // Send prompt data in JSON format
-                }) 
+                body: JSON.stringify({ "prompt": prompt })
             });
 
-            if (response.ok) { // need to make sure the response is successful
-                const responseData = await response.json(); // parse the JSON response data
-                setResponse(responseData.response); // update the response state with the received response
-                console.log(JSON.stringify(responseData)); // log the response data for debugging
-                alert(JSON.stringify(responseData)); // show an alert with the response data (for debugging)
+            if (serverResponse.ok) {
+                const responseData = await serverResponse.json();
+                setResponse(responseData.response); // Assuming 'response' is the correct key in your responseData
             } else {
-                console.error("Failed to send prompt."); // request failed, reflect this in the console
+                console.error("Failed to send prompt.");
+                setResponse("Failed to send prompt."); // Update UI to show failure message
             }
         } catch (error) {
-            console.error(error); // log any other errors that may have occured
+            console.error(error);
+            setResponse(`Error: ${error.message}`); // Update UI to show error message
         }
     };
 
-    // Render the component
     return (
         <div>
             <h1>Enter your prompt</h1>
-
-            {/* Form for submitting prompts */}
             <form onSubmit={handleSubmit}>
-                {/* Textarea for entering the prompt */}
                 <div style={{ marginBottom: "20px" }}>
                     <textarea value={prompt} onChange={(e) => setPrompt(e.target.value)} />
+                </div>
+                <div style={{ marginBottom: "20px" }}>
+                    <label>
+                        Choose a service:
+                        <select value={service} onChange={(e) => setService(e.target.value)}>
+                            <option value="chatgpt">ChatGPT</option>
+                            <option value="gemini">Gemini</option>
+                        </select>
+                    </label>
                 </div>
                 <button type="submit">Submit Prompt</button>
             </form>
 
-            {/* Display the response if available (currently does not work) */}
             {response && (
                 <div>
                     <h2>Response:</h2>
@@ -59,4 +66,4 @@ function PromptForm() {
     );
 }
 
-export default PromptForm; // Export the component as default
+export default PromptForm;
