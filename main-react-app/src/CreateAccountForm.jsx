@@ -15,9 +15,9 @@ export const CreateAccountForm = (props) => {
 
     return (
          // start form tag and connect handleSubmit
-         <>
-         <form onSubmit={handleSubmit}> 
-         <>Create Account Page/Create an Account</>
+         <div className='form-container'>
+            <form className='createaccount-form' onSubmit={handleSubmit}> 
+            <>Create Account Page/Create an Account</>
              <label for="name" >Name</label>
              <input value={name} type="name" placeholder='Your Name' id='name' name='name'/>
              <label for="username" >Username</label>
@@ -27,10 +27,10 @@ export const CreateAccountForm = (props) => {
              
              <button type='submit'>Create Account</button>
 
-         </form>
+            </form>
         
          <button onClick={() => props.onformSwitch('LoginForm')}> Back to Login</button> 
 
-         </>
+         </div>
     )
 }

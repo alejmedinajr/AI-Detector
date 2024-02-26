@@ -15,19 +15,19 @@ export const LoginForm = (props) => {
 
     return (
         // start form tag and connect handleSubmit
-        <>
-        <form onSubmit={handleSubmit}> 
-            <>S.N.I.T.C.H</> 
+        <div className='form-container'>
+            <>S.N.I.T.C.H</>
+            <form className='login-form' onSubmit={handleSubmit}> 
             <label for="username" >Username</label>
             <input value={user} type="username" placeholder='Username' id='username' name='username'/>
             <label for="password" >Password</label>
             <input value={password} type="password" placeholder='Password' id='password' name='password'/>
 
             <button type='submit'>Log In</button>
-        </form>
+            </form>
 
          <button onClick={() => props.onformSwitch('CreateAccountForm')}> Create an Account</button>   
 
-        </>
+        </div>
     )
 }
