@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import {getAuth, createUserWithEmailAndPassword} from "firebase/auth"
 
 export const CreateAccountForm = (props) => {
     // initial value is empty string for the fields(for now)

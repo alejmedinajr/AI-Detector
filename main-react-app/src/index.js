@@ -3,8 +3,15 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { initializeApp } from "firebase/app";
+import {getAuth} from "firebase/auth";
+import { getAnalytics } from "firebase/analytics";
 
 import {ChakraProvider, ColorModeScript} from "@chakra-ui/react";
+
+
+// Initialize Firebase Authentication and get a reference to the service
+const auth = getAuth(app);
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

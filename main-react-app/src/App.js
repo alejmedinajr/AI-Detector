@@ -2,8 +2,8 @@ import React, {useState} from "react";
 import "./App.css"
 import PromptForm from "./components/PromptForm";
 import FileForm from "./components/FileForm";
-import { LoginForm } from "./LoginForm";
-import { CreateAccountForm } from "./CreateAccountForm";
+import { LoginForm } from "./components/LoginForm";
+import { CreateAccountForm } from "./components/CreateAccountForm";
 import { IconButton } from "@chakra-ui/button";
 import { useColorMode } from "@chakra-ui/color-mode";
 import { Flex, VStack, Heading, Spacer } from "@chakra-ui/layout";
