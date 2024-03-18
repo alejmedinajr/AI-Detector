@@ -1,45 +1,61 @@
-import React, { useState } from 'react';
-import { Button, Textarea, VStack, ButtonGroup, Heading } from "@chakra-ui/react";
+import React, { useState, useEffect, useCallback } from 'react';
+import { Button, ButtonGroup, Textarea, VStack, Heading, Spinner } from "@chakra-ui/react";
+import { FaSpinner } from "react-icons/fa"; // Import loading spinner icon if needed
 
 function PromptForm() {
     const [prompt, setPrompt] = useState("");
-    const [response, setResponse] = useState("");
-    const [selectedButton, setSelectedButton] = useState(null);
+    const [responses, setResponses] = useState({});
+    const [isLoading, setIsLoading] = useState(false); // State to track loading state
+    const [selectedModel, setSelectedModel] = useState("ChatGPT"); // Set ChatGPT as default selected model
+    const [formSubmitted, setFormSubmitted] = useState(false); // State to track whether form has been submitted
 
-    const handleSubmit = async (event) => {
-        event.preventDefault();
-
+    // Function to fetch response from API
+    const fetchResponse = useCallback(async (model) => {
+        setIsLoading(true);
         try {
-            const endpoint = "http://localhost:8000/form_submission/";          
-            const response = await fetch(endpoint, {
+            const response = await fetch("http://localhost:8000/form_submission/", {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    "prompt": prompt
-                }) 
+                    prompt: prompt
+                })
             });
 
             if (response.ok) {
                 const responseData = await response.json();
-                setResponse(responseData.response);
-                console.log(JSON.stringify(responseData));
-                alert(JSON.stringify(responseData));
+                setResponses(prevResponses => ({
+                    ...prevResponses,
+                    [model]: responseData.Responses
+                }));
             } else {
-                console.error("Failed to send prompt.");
+                console.error("Failed to get responses.");
             }
         } catch (error) {
             console.error(error);
+        } finally {
+            setIsLoading(false);
         }
-    };
+    }, [prompt]); // Depend on prompt to trigger fetch when it changes
 
-    const handleButtonClick = (buttonName) => {
-        if (selectedButton === buttonName) {
-            setSelectedButton(null); // Toggle off if already selected
-        } else {
-            setSelectedButton(buttonName);
+    // Effect to fetch response when form is submitted
+    useEffect(() => {
+        if (formSubmitted) {
+            fetchResponse(selectedModel);
+            setFormSubmitted(false); // Reset formSubmitted state after fetching response
         }
+    }, [formSubmitted, fetchResponse, selectedModel]);
+
+    // Function to handle model button click
+    const handleButtonClick = useCallback((model) => {
+        setSelectedModel(model);
+    }, []);
+
+    // Function to handle form submission
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        setFormSubmitted(true); // Set formSubmitted state to true when form is submitted
     };
 
     return (
@@ -57,39 +73,45 @@ function PromptForm() {
                         p={2}
                         resize="vertical"
                     />
-                    <Button type="submit" colorScheme="blue">Submit Prompt</Button>
+                    <ButtonGroup spacing={4}>
+                        <Button
+                            type="submit"
+                            colorScheme="blue"
+                            isLoading={isLoading}
+                            disabled={!prompt.trim()} // Disable button if prompt is empty
+                        >
+                            Submit Prompt
+                        </Button>
+                        <Button
+                            onClick={() => handleButtonClick("ChatGPT")}
+                            colorScheme={selectedModel === "ChatGPT" ? "blue" : "gray"}
+                            _hover={{ bg: "blue.500", color: "white" }}
+                        >
+                            ChatGPT
+                        </Button>
+                        <Button
+                            onClick={() => handleButtonClick("Gemini/Bard")}
+                            colorScheme={selectedModel === "Gemini/Bard" ? "blue" : "gray"}
+                            _hover={{ bg: "blue.500", color: "white" }}
+                        >
+                            Gemini/Bard
+                        </Button>
+                    </ButtonGroup>
                 </VStack>
             </form>
 
-            {response && (
+            {/* Display selected model response */}
+            {responses[selectedModel] && (
                 <div>
-                    <h2>Response:</h2>
+                    <h2>{selectedModel} Response:</h2>
                     <Textarea
                         readOnly
-                        value={response}
+                        value={responses[selectedModel]}
                         width="100%"
                         height="200px"
                     />
                 </div>
             )}
-
-            {/* Button Group for additional buttons */}
-            <ButtonGroup spacing={4} mt={4}>
-                <Button
-                    onClick={() => handleButtonClick("ChatGPT")}
-                    colorScheme={selectedButton === "ChatGPT" ? "blue" : "gray"}
-                    _hover={{ bg: "blue.500", color: "white" }}
-                >
-                    ChatGPT
-                </Button>
-                <Button
-                    onClick={() => handleButtonClick("GeminiBard")}
-                    colorScheme={selectedButton === "GeminiBard" ? "blue" : "gray"}
-                    _hover={{ bg: "blue.500", color: "white" }}
-                >
-                    Gemini/Bard
-                </Button>
-            </ButtonGroup>
         </div>
     );
 }
