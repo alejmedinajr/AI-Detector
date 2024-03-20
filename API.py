@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile
+from fastapi import FastAPI, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
 
@@ -10,6 +10,8 @@ import config
 import google.generativeai as genai
 
 import parsing
+
+import database as db
 
 UPLOAD_DIR = Path() / 'uploads'
 
@@ -58,6 +60,25 @@ async def uploadFile(file_uploads: list[UploadFile]):
         geminiResponse(text)
 
     return {"filenames": [f.filename for f in file_uploads]}
+
+users_db = {}
+
+class User(BaseModel):
+    username: str
+    password: str
+
+@app.post("/signup")
+async def sign_up(user: User):
+    if user.username in users_db:
+        raise HTTPException(status_code=400, detail="Username already exists")
+    users_db[user.username] = user.password
+    return {"message": "User signed up successfully"}
+
+@app.post("/signin")
+async def sign_in(user: User):
+    if user.username not in users_db or users_db[user.username] != user.password:
+        raise HTTPException(status_code=401, detail="Invalid username or password")
+    return {"message": "User signed in successfully"}
 
 def openaiResponse(prompt):
     client = OpenAI(api_key=config.chatgpt_api_key) # setting up the chatgpt client using the api key from the config file
