@@ -4,35 +4,59 @@ import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
 export const LoginForm = (props) => {
     // initial value is empty string for both of these fields
-    const [user, setUsername] = useState('')
-    const [password, setPassword] = useState('')
+    // user = email in this case
+    // const [user, setUsername] = useState('')
+    // const [password, setPassword] = useState('')
 
+    // email and password will be in an object,, set the initial object to empty
+    const [userCredentials, setUserCredentials] = useState({})
+
+    function handleCredentials(event) {
+        setUserCredentials({...userCredentials, [event.target.name]: event.target.value})
+        
+    }
+
+    function handleLogin(event) {
+        event.preventDefault();
+        signInWithEmailAndPassword(auth, userCredentials.email, userCredentials.password)
+        .then((userCredential) => {
+            const user = userCredential.user;
+    
+        })
+        .catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message;
+        });
+    }
+
+
+    {/*}
     // capture the state of fields when user submits the form
-    const handleSubmit = (event) => {
+    const handleSubmit = async (event) => {
         // declare to prevent page reloading and losing state
         event.preventDefault();
         console.log(user);
 
-    const auth = getAuth();
-    signInWithEmailAndPassword(auth, user, password)
-        .then((userCredential) => {
-            const user = userCredential.user;
-    // ...
-    })
+        try {
+            const userCredential = await signInWithEmailAndPassword(auth, user, password)
+        } catch (error) {
+            console.error(error);
+        }
 
     }
+    */}
 
     return (
         // start form tag and connect handleSubmit
         <div className='form-container'>
             <>S.N.I.T.C.H</>
             <form className='login-form' onSubmit={handleSubmit}> 
-            <label for="username" >Username</label>
-            <input value={user} type="username" placeholder='Username' id='username' name='username'/>
+            <label for="email" >Email</label>
+            <input onChange={(event) =>{handleCredentials(event)}} type="email" placeholder='Email' id='email' name='email '/>
             <label for="password" >Password</label>
-            <input value={password} type="password" placeholder='Password' id='password' name='password'/>
+            <input onChange={(event) =>{handleCredentials(event)}} type="password" placeholder='Password' id='password' name='password'/>
 
-            <button type='submit'>Log In</button>
+            <button onClick = {(event) => {handleLogin}} type='submit'>Log In</button>
             </form>
 
          <button onClick={() => props.onformSwitch('CreateAccountForm')}> Create an Account</button>   
