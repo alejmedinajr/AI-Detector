@@ -64,8 +64,10 @@ async def uploadFile(file_uploads: list[UploadFile]):
 users_db = {}
 
 class User(BaseModel):
-    username: str
+    email: str
     password: str
+    firstname: str
+    lastname: str
 
 @app.post("/signup")
 async def sign_up(user: User):
