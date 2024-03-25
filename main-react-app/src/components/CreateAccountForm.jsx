@@ -17,7 +17,7 @@ export const CreateAccountForm = (props) => {
     
     function handleSignup(event) {
         event.preventDefault();
-        createUserWithEmailAndPassword(auth, userCredentials.email, userCredentials.password)
+        createUserWithEmailAndPassword(getAuth, userCredentials.email, userCredentials.password)
         .then((userCredential) => {
         // Signed up 
             const user = userCredential.user;
@@ -50,7 +50,7 @@ export const CreateAccountForm = (props) => {
     return (
          // start form tag and connect handleSubmit
          <div className='form-container'>
-            <form className='createaccount-form' onSubmit={handleSubmit}> 
+            <form className='createaccount-form' onSubmit={handleSignup}> 
             <>Create Account Page/Create an Account</>
              <label for="name" >Name</label>
              <input onChange={(event) =>{handleCredentials(event)}} type="name" placeholder='Your Name' id='name' name='name'/>
@@ -59,7 +59,7 @@ export const CreateAccountForm = (props) => {
              <label for="password" >Password</label>
              <input onChange={(event) =>{handleCredentials(event)}} type="password" placeholder='Password' id='password' name='password'/>
              
-             <button onClick = {(event) => {handleSignup}} type='submit'>Create Account</button>
+             <button onClick = {(event) => {handleSignup(event)}} type='submit'>Create Account</button>
 
             </form>
         

@@ -18,7 +18,7 @@ export const LoginForm = (props) => {
 
     function handleLogin(event) {
         event.preventDefault();
-        signInWithEmailAndPassword(auth, userCredentials.email, userCredentials.password)
+        signInWithEmailAndPassword(getAuth, userCredentials.email, userCredentials.password)
         .then((userCredential) => {
             const user = userCredential.user;
     
@@ -50,13 +50,13 @@ export const LoginForm = (props) => {
         // start form tag and connect handleSubmit
         <div className='form-container'>
             <>S.N.I.T.C.H</>
-            <form className='login-form' onSubmit={handleSubmit}> 
+            <form className='login-form' onSubmit={handleLogin}> 
             <label for="email" >Email</label>
             <input onChange={(event) =>{handleCredentials(event)}} type="email" placeholder='Email' id='email' name='email '/>
             <label for="password" >Password</label>
             <input onChange={(event) =>{handleCredentials(event)}} type="password" placeholder='Password' id='password' name='password'/>
 
-            <button onClick = {(event) => {handleLogin}} type='submit'>Log In</button>
+            <button onClick = {(event) => {handleLogin(event)}} type='submit'>Log In</button>
             </form>
 
          <button onClick={() => props.onformSwitch('CreateAccountForm')}> Create an Account</button>   

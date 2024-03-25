@@ -6,6 +6,7 @@ import reportWebVitals from './reportWebVitals';
 import { initializeApp } from "firebase/app";
 import {getAuth} from "firebase/auth";
 import { getAnalytics } from "firebase/analytics";
+import app from "./firebase"
 
 import {ChakraProvider, ColorModeScript} from "@chakra-ui/react";
 
