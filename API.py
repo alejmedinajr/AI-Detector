@@ -18,7 +18,7 @@ UPLOAD_DIR = Path() / 'uploads'
 # pip install python-multipart, openai, fastapi, uvicorn
 app = FastAPI() # initializing new Restful API 
 
-# code to prevent erros that occur when trying to make end to end connections where both ends are localhost
+# code to prevent errors that occur when trying to make end to end connections where both ends are localhost
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],

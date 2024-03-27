@@ -1,10 +1,11 @@
 import {initializeApp} from "firebase/app";
 import {getAuth} from "firebase/auth";
 import { getAnalytics } from "firebase/analytics";
+import react_firebase_api_key from "../config.py";
 
 //Firebase configuration
 const firebaseConfig = {
-    apiKey: "AIzaSyBo555Ir5ZL1dygUgDihtU1btm10HkIuJg",
+    apiKey: react_firebase_api_key,
     authDomain: "inspectai.firebaseapp.com",
     databaseURL: "https://inspectai-default-rtdb.firebaseio.com",
     projectId: "inspectai",
