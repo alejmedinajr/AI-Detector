@@ -1,7 +1,7 @@
 import {initializeApp} from "firebase/app";
 import {getAuth} from "firebase/auth";
 import { getAnalytics } from "firebase/analytics";
-import react_firebase_api_key from "../config.py";
+import react_firebase_api_key from "./config.py";
 
 //Firebase configuration
 const firebaseConfig = {
