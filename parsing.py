@@ -219,8 +219,8 @@ def write_to_csv(name, dataset):
             for row in dataset: writer.writerow(row)    
 
 # Quick Testing
-files = process_directory("LeetCode", [])
-file_text = [(os.path.basename(file) , convert_to_text(file)) for file in files]
-preprocessed_text = [(name,preprocess_text(text)) for name,text in file_text]
-dataset = create_dataset(preprocessed_text)
-write_to_csv('test.csv', dataset)
+#files = process_directory("LeetCode", [])
+#file_text = [(os.path.basename(file) , convert_to_text(file)) for file in files]
+#preprocessed_text = [(name,preprocess_text(text)) for name,text in file_text]
+#dataset = create_dataset(preprocessed_text)
+#write_to_csv('test.csv', dataset)
