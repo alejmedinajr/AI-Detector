@@ -10,34 +10,63 @@ export const AuthenticationForm = (props) => {
         setUserCredentials({...userCredentials, [event.target.name]: event.target.value});
     }
 
-    function handleSubmit(event) {
+    async function handleSubmit(event) {
         event.preventDefault();
+
         const auth = getAuth(); // Get the Auth object
         
         if (isLogin) {
-            signInWithEmailAndPassword(auth, userCredentials.email, userCredentials.password)
-                .then((userCredential) => {
+            // Send login data to FastAPI
+            try {
+                const response = await fetch('http://localhost:8000/signin', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        email: userCredentials.email,
+                        password: userCredentials.password,
+                    }),
+                });
+
+                if (response.ok) {
                     // Login successful
-                    const user = userCredential.user;
-                    console.log(user);
-                })
-                .catch((error) => {
-                    const errorCode = error.code;
-                    const errorMessage = error.message;
-                    console.log(errorCode, errorMessage);
-                });
+                    const userData = await response.json();
+                    console.log(userData);
+                } else {
+                    // Login failed
+                    console.error('Login failed:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
         } else {
-            createUserWithEmailAndPassword(auth, userCredentials.email, userCredentials.password)
-                .then((userCredential) => {
-                    // Signed up 
-                    const user = userCredential.user;
-                    console.log(user);
-                })
-                .catch((error) => {
-                    const errorCode = error.code;
-                    const errorMessage = error.message;
-                    console.log(errorCode, errorMessage);
+            // Send signup data to FastAPI
+            try {
+                const response = await fetch('http://localhost:8000/signup', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        first_name: userCredentials.first_name,
+                        last_name: userCredentials.last_name,
+                        email: userCredentials.email,
+                        password: userCredentials.password,
+                    }),
                 });
+
+                if (response.ok) {
+                    // Signup successful
+                    const userData = await response.json();
+                    console.log(userData);
+                } else {
+                    // Signup failed
+                    console.error('Signup failed:', response.statusText);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
         }
     }
 
@@ -46,10 +75,13 @@ export const AuthenticationForm = (props) => {
             <h2>{isLogin ? 'Login' : 'Sign Up'}</h2>
             <form className='auth-form' onSubmit={handleSubmit}> 
                 {!isLogin && (
-                    <div>
-                        <label htmlFor="name">Name</label>
-                        <input onChange={handleCredentials} type="text" placeholder='Your Name' id='name' name='name' value={userCredentials.name}/>
-                    </div>
+                    <><div>
+                        <label htmlFor="first_name">First Name</label>
+                        <input onChange={handleCredentials} type="text" placeholder='Your First Name' id='first_name' name='first_name' value={userCredentials.first_name} />
+                    </div><div>
+                            <label htmlFor="last_name">Last Name</label>
+                            <input onChange={handleCredentials} type="text" placeholder='Your Last Name' id='last_name' name='last_name' value={userCredentials.last_name} />
+                        </div></>
                 )}
                 <div>
                     <label htmlFor="email">Email</label>

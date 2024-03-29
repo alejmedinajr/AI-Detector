@@ -64,19 +64,27 @@ async def uploadFile(file_uploads: list[UploadFile]):
 users_db = {}
 
 class User(BaseModel):
+    first_name: str
+    last_name: str
     email: str
     password: str
-    firstname: str
-    lastname: str
-
+    
 @app.post("/signup")
 async def sign_up(user: User):
-    if user.username in users_db:
-        raise HTTPException(status_code=400, detail="Username already exists")
-    users_db[user.username] = user.password
+    if db.check_user_exists(user.email): return -1
+
+    status = get_status(user.email)
+
+    if not status: return -1
+
+    db.insert([db.User(user.first_name, user.last_name, user.password, user.email, 'Southwestern', status)])
+    
+    #    raise HTTPException(status_code=400, detail="Username already exists")
+    #users_db[user.username] = user.password
+    print(user)
     return {"message": "User signed up successfully"}
 
-@app.post("/signin")
+@app.post("/signin") # WE MIGHT NOT NEED THIS WITH GOOGLE AUTHENTICATE
 async def sign_in(user: User):
     if user.username not in users_db or users_db[user.username] != user.password:
         raise HTTPException(status_code=401, detail="Invalid username or password")
@@ -103,4 +111,10 @@ def geminiResponse(prompt):
     response = model.generate_content(prompt)
     print(response.text)
     return response.text
+
+def get_status(email):
+    faculty_directory = []
+    if email in faculty_directory: return 'Faculty'
+    elif 'southwestern.edu' in email: return 'Student'
+    else: return None
    
