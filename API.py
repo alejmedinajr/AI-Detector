@@ -1,6 +1,7 @@
 from fastapi import FastAPI, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
+from typing import List
 
 from openai import OpenAI
 from pydantic import BaseModel
@@ -43,7 +44,7 @@ async def get_user_text(user_prompt: UserQuery): # this function needs to be asy
     return {"Responses":api_responses} # returning the response allows it to be used by the react-app
 
 @app.post('/uploadfile/') # this function needs to be defined as post since it relies on form data from the react app
-async def uploadFile(file_uploads: list[UploadFile]):
+async def uploadFile(file_uploads: List[UploadFile] = []):
     for file_upload in file_uploads:
         data = await file_upload.read()
         save = UPLOAD_DIR / file_upload.filename

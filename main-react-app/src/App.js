@@ -8,10 +8,17 @@ import { useColorMode } from "@chakra-ui/color-mode";
 import { Flex, VStack, Heading, Spacer } from "@chakra-ui/layout";
 import { FaSun, FaMoon } from "react-icons/fa";
 import { Box } from "@chakra-ui/react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+
 
 function App() {
   const { colorMode, toggleColorMode } = useColorMode();
   const isDark = colorMode === "dark";
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  const authenticateUser = (status) => {
+    setIsAuthenticated(status);
+  };
 
   // Define light and dark gradients
   const lightGradient = "linear(to-b, white.200, cyan.200)";
@@ -29,38 +36,21 @@ function App() {
   };
 
   return (
-    <Box
-      bgGradient={bgGradient}
-      minHeight="100vh"
-      transition="background-color 200ms linear" // Apply transition effect
-    >
-      <VStack>
-        <Flex w="100%">
-          <Heading
-            ml="2"
-            size="lg"
-            fontWeight="extrabold"
-            color="blue.500"
-            justifyContent="center"
-          >
-            SNITCH:AI
-          </Heading>
-          <Spacer />
-          <IconButton
-            ml={9}
-            icon={isDark ? <FaSun /> : <FaMoon />}
-            isRound="true"
-            onClick={toggleColorMode}
-          ></IconButton>
-        </Flex>
-        <PromptForm />
-        <FileForm />
-        <div className="App">
-          <AuthenticationForm isLogin={isLogin} />
-          
-        </div>
-      </VStack>
-    </Box>
+    <Router>
+      <Box /* Your styling here */>
+        {/* Your header and other components */}
+        <Routes>
+          <Route path="/" element={!isAuthenticated ? <AuthenticationForm onAuthenticate={authenticateUser} /> : <Navigate to="/prompt" />} />
+          <Route path="/prompt" element={isAuthenticated ? (
+              <>
+                <PromptForm />
+                <FileForm /> {/* Now showing FileForm alongside PromptForm */}
+              </>
+            ) : <Navigate to="/" />
+          } />
+        </Routes>
+      </Box>
+    </Router>
   );
 }
 
