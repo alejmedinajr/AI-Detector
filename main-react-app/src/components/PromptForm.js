@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Button, ButtonGroup, Textarea, VStack, Heading, Spinner } from "@chakra-ui/react";
+import { Button, ButtonGroup, Textarea, VStack, Heading, Spinner, Box, Text } from "@chakra-ui/react";
 import { FaSpinner } from "react-icons/fa"; // Import loading spinner icon if needed
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth"; // Firebase imports
 
 function PromptForm() {
     const [prompt, setPrompt] = useState("");
@@ -8,6 +9,32 @@ function PromptForm() {
     const [isLoading, setIsLoading] = useState(false); // State to track loading state
     const [selectedModel, setSelectedModel] = useState("ChatGPT"); // Set ChatGPT as default selected model
     const [formSubmitted, setFormSubmitted] = useState(false); // State to track whether form has been submitted
+    const [user, setUser] = useState(null); // State for storing user info
+
+    const auth = getAuth();
+
+    // Handling user auth
+
+     // Function to sign out user
+     const handleSignOut = () => {
+        signOut(auth).then(() => {
+            console.log("User signed out");
+            // Perform further clean up or redirection as needed
+        }).catch((error) => {
+            console.error("Sign out error:", error);
+        });
+    };
+
+    // Monitor auth state changes
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, currentUser => {
+            setUser(currentUser);
+        });
+
+        // Cleanup subscription on unmount
+        return () => unsubscribe();
+    }, []);
+
 
     // Function to fetch response from API
     const fetchResponse = useCallback(async (model) => {
@@ -60,6 +87,16 @@ function PromptForm() {
 
     return (
         <div>
+            <Box>
+            {user ? (
+                <Box>
+                    <Text>Welcome, {user.email}</Text>
+                    <Button onClick={handleSignOut} colorScheme="red" size="sm" marginY="2">Sign Out</Button>
+                </Box>
+            ) : (
+                <Text>Please log in.</Text>
+            )}
+            </Box>
             <Heading marginBottom="2">Enter your prompt</Heading>
 
             <form onSubmit={handleSubmit}>
