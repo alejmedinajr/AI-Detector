@@ -3,6 +3,7 @@ import { Button, ButtonGroup, Textarea, VStack, Heading, Spinner, Box, Text } fr
 import { FaSpinner } from "react-icons/fa"; // Import loading spinner icon if needed
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth"; // Firebase imports
 import { useNavigate } from "react-router-dom";
+import ThemeToggleButton  from "./ThemeToggleButton";
 
 function PromptForm({ onSignOut }) {
     const [prompt, setPrompt] = useState("");
@@ -91,6 +92,7 @@ function PromptForm({ onSignOut }) {
     return (
         <div>
             <Box>
+            <ThemeToggleButton />
             <div>
             <Button
                 colorScheme="teal"

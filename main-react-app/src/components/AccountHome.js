@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Button, Text, VStack } from '@chakra-ui/react';
 import { getAuth } from "firebase/auth";
+import ThemeToggleButton  from "./ThemeToggleButton";
 
 const AccountHome = () => {
   const [userName, setUserName] = useState('');
@@ -21,6 +22,7 @@ const AccountHome = () => {
 
   return (
     <Box p={5} shadow="md" borderWidth="1px" flex="1" borderRadius="md">
+    <ThemeToggleButton />
       <VStack spacing={4}>
         <Text fontSize="xl">{`Welcome to Your Account Dashboard, ${userName}`}</Text>
         <Button colorScheme="blue" onClick={handleCreateModelClick}>
