@@ -4,6 +4,7 @@ import { FaSpinner } from "react-icons/fa"; // Import loading spinner icon if ne
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth"; // Firebase imports
 import { useNavigate } from "react-router-dom";
 import ThemeToggleButton  from "./ThemeToggleButton";
+import FileForm from './FileForm';
 
 function PromptForm({ onSignOut }) {
     const [prompt, setPrompt] = useState("");
@@ -12,6 +13,7 @@ function PromptForm({ onSignOut }) {
     const [selectedModel, setSelectedModel] = useState("ChatGPT"); // Set ChatGPT as default selected model
     const [formSubmitted, setFormSubmitted] = useState(false); // State to track whether form has been submitted
     const [user, setUser] = useState(null); // State for storing user info
+    const [showFileForm, setShowFileForm] = useState(false); // Added state to toggle visibility
 
     const auth = getAuth();
     const navigate = useNavigate();
@@ -89,10 +91,28 @@ function PromptForm({ onSignOut }) {
         navigate('/account-home');
     }
 
+    const toggleFormView = () => {
+        setShowFileForm(!showFileForm); // Toggle between PromptForm and FileForm
+    };
+
+    if (showFileForm) {
+        return (
+            <Box>
+                <FileForm />
+                <Button colorScheme="teal" onClick={toggleFormView} mt="4">
+                    Back to Prompt Form
+                </Button>
+            </Box>
+        );
+    }
+
     return (
         <div>
             <Box>
             <ThemeToggleButton />
+            <Button colorScheme="teal" size="md" onClick={toggleFormView} mt="4">
+                    Go to File Form
+            </Button>
             <div>
             <Button
                 colorScheme="teal"

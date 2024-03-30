@@ -42,7 +42,6 @@ function App() {
           <Route path="/prompt" element={isAuthenticated ? (
               <>
                 <PromptForm />
-                <FileForm /> 
               </>
             ) : <Navigate to="/" />
           } />
