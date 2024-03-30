@@ -1,7 +1,6 @@
 import {initializeApp} from "firebase/app";
 import {getAuth} from "firebase/auth";
 import { getAnalytics } from "firebase/analytics";
-import react_firebase_api_key from "./config.py";
 
 const apiKey = process.env.REACT_APP_FIREBASE_API_KEY
 

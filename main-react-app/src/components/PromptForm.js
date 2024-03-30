@@ -2,8 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Button, ButtonGroup, Textarea, VStack, Heading, Spinner, Box, Text } from "@chakra-ui/react";
 import { FaSpinner } from "react-icons/fa"; // Import loading spinner icon if needed
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth"; // Firebase imports
+import { useNavigate } from "react-router-dom";
 
-function PromptForm() {
+function PromptForm({ onSignOut }) {
     const [prompt, setPrompt] = useState("");
     const [responses, setResponses] = useState({});
     const [isLoading, setIsLoading] = useState(false); // State to track loading state
@@ -12,18 +13,7 @@ function PromptForm() {
     const [user, setUser] = useState(null); // State for storing user info
 
     const auth = getAuth();
-
-    // Handling user auth
-
-     // Function to sign out user
-     const handleSignOut = () => {
-        signOut(auth).then(() => {
-            console.log("User signed out");
-            // Perform further clean up or redirection as needed
-        }).catch((error) => {
-            console.error("Sign out error:", error);
-        });
-    };
+    const navigate = useNavigate();
 
     // Monitor auth state changes
     useEffect(() => {
@@ -85,9 +75,32 @@ function PromptForm() {
         setFormSubmitted(true); // Set formSubmitted state to true when form is submitted
     };
 
+    const handleSignOut = async () => {
+        try {
+            await signOut(auth);
+            navigate('/login'); // Navigate to the login route after successful sign-out
+        } catch (error) {
+            console.error("Error signing out: ", error);
+        }
+    };
+
+    const goToAccountHome = () => {
+        navigate('/account-home');
+    }
+
     return (
         <div>
             <Box>
+            <div>
+            <Button
+                colorScheme="teal"
+                size="md"
+                onClick={goToAccountHome}
+                mt="4"
+            >
+                Go to Account Home
+            </Button>
+        </div>
             {user ? (
                 <Box>
                     <Text>Welcome, {user.email}</Text>

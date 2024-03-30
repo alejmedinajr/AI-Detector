@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import './LoginForm.css';
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 
 export const LoginForm = (props) => {
