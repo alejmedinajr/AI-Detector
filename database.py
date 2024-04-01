@@ -69,6 +69,10 @@ def remove(users):
 		user_ref.delete()
 		print(f'Successfully removed: {user.email}.')
 
+def check_user_exists(email):
+	if get_user_reference(email): return True
+	else: return False
+	
 def get_user_reference(email):
 	"""This helper function uses a user's email to get the user's reference in the database. This works since users have unique emails.
 

@@ -1,13 +1,33 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Button, ButtonGroup, Textarea, VStack, Heading, Spinner } from "@chakra-ui/react";
+import { Button, ButtonGroup, Textarea, VStack, Heading, Spinner, Box, Text } from "@chakra-ui/react";
 import { FaSpinner } from "react-icons/fa"; // Import loading spinner icon if needed
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth"; // Firebase imports
+import { useNavigate } from "react-router-dom";
+import ThemeToggleButton  from "./ThemeToggleButton";
+import FileForm from './FileForm';
 
-function PromptForm() {
+function PromptForm({ onSignOut }) {
     const [prompt, setPrompt] = useState("");
     const [responses, setResponses] = useState({});
     const [isLoading, setIsLoading] = useState(false); // State to track loading state
     const [selectedModel, setSelectedModel] = useState("ChatGPT"); // Set ChatGPT as default selected model
     const [formSubmitted, setFormSubmitted] = useState(false); // State to track whether form has been submitted
+    const [user, setUser] = useState(null); // State for storing user info
+    const [showFileForm, setShowFileForm] = useState(false); // Added state to toggle visibility
+
+    const auth = getAuth();
+    const navigate = useNavigate();
+
+    // Monitor auth state changes
+    useEffect(() => {
+        const unsubscribe = onAuthStateChanged(auth, currentUser => {
+            setUser(currentUser);
+        });
+
+        // Cleanup subscription on unmount
+        return () => unsubscribe();
+    }, []);
+
 
     // Function to fetch response from API
     const fetchResponse = useCallback(async (model) => {
@@ -58,8 +78,60 @@ function PromptForm() {
         setFormSubmitted(true); // Set formSubmitted state to true when form is submitted
     };
 
+    const handleSignOut = async () => {
+        try {
+            await signOut(auth);
+            navigate('/login'); // Navigate to the login route after successful sign-out
+        } catch (error) {
+            console.error("Error signing out: ", error);
+        }
+    };
+
+    const goToAccountHome = () => {
+        navigate('/account-home');
+    }
+
+    const toggleFormView = () => {
+        setShowFileForm(!showFileForm); // Toggle between PromptForm and FileForm
+    };
+
+    if (showFileForm) {
+        return (
+            <Box>
+                <FileForm />
+                <Button colorScheme="teal" onClick={toggleFormView} mt="4">
+                    Back to Prompt Form
+                </Button>
+            </Box>
+        );
+    }
+
     return (
         <div>
+            <Box>
+            <ThemeToggleButton />
+            <Button colorScheme="teal" size="md" onClick={toggleFormView} mt="4">
+                    Go to File Form
+            </Button>
+            <div>
+            <Button
+                colorScheme="teal"
+                size="md"
+                onClick={goToAccountHome}
+                mt="4"
+            >
+                Go to Account Home
+            </Button>
+        </div>
+            {user ? (
+                <Box>
+                    <Text>Welcome, {user.email}</Text>
+                    <Button onClick={handleSignOut} colorScheme="red" size="sm" marginY="2">Sign Out</Button>
+                </Box>
+            ) : (
+                <Text>Please log in.</Text>
+            )}
+            </Box>
             <Heading marginBottom="2">Enter your prompt</Heading>
 
             <form onSubmit={handleSubmit}>
