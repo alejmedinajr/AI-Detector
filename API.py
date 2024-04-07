@@ -80,4 +80,10 @@ def geminiResponse(prompt):
     response = model.generate_content(prompt)
     print(response.text)
     return response.text
+
+def get_status(email):
+    faculty_directory = []
+    if email in faculty_directory: return 'Faculty'
+    elif 'southwestern.edu' in email: return 'Student'
+    else: return None
    
