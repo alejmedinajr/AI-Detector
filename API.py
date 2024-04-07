@@ -1,4 +1,4 @@
-from fastapi import FastAPI, UploadFile
+from fastapi import FastAPI, UploadFile, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
 
@@ -11,12 +11,14 @@ import google.generativeai as genai
 
 import parsing
 
+import database as db
+
 UPLOAD_DIR = Path() / 'uploads'
 
 # pip install python-multipart, openai, fastapi, uvicorn
 app = FastAPI() # initializing new Restful API 
 
-# code to prevent erros that occur when trying to make end to end connections where both ends are localhost
+# code to prevent errors that occur when trying to make end to end connections where both ends are localhost
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -58,6 +60,35 @@ async def uploadFile(file_uploads: list[UploadFile]):
         geminiResponse(text)
 
     return {"filenames": [f.filename for f in file_uploads]}
+
+users_db = {}
+
+class User(BaseModel):
+    first_name: str
+    last_name: str
+    email: str
+    password: str
+    
+@app.post("/signup")
+async def sign_up(user: User):
+    if db.check_user_exists(user.email): return -1
+
+    status = get_status(user.email)
+
+    if not status: return -1
+
+    db.insert([db.User(user.first_name, user.last_name, user.password, user.email, 'Southwestern', status)])
+    
+    #    raise HTTPException(status_code=400, detail="Username already exists")
+    #users_db[user.username] = user.password
+    print(user)
+    return {"message": "User signed up successfully"}
+
+@app.post("/signin") # WE MIGHT NOT NEED THIS WITH GOOGLE AUTHENTICATE
+async def sign_in(user: User):
+    if user.username not in users_db or users_db[user.username] != user.password:
+        raise HTTPException(status_code=401, detail="Invalid username or password")
+    return {"message": "User signed in successfully"}
 
 def openaiResponse(prompt):
     client = OpenAI(api_key=config.chatgpt_api_key) # setting up the chatgpt client using the api key from the config file
