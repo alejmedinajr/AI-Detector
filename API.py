@@ -7,7 +7,7 @@ from openai import OpenAI
 from pydantic import BaseModel
 
 import config
-
+import os
 import google.generativeai as genai
 
 import parsing
@@ -47,20 +47,24 @@ async def get_user_text(user_prompt: UserQuery): # this function needs to be asy
 async def uploadFile(file_uploads: List[UploadFile] = []):
     for file_upload in file_uploads:
         data = await file_upload.read()
+        if not os.path.exists(UPLOAD_DIR): os.makedirs(UPLOAD_DIR)
+        
         save = UPLOAD_DIR / file_upload.filename
+
         with open(save, 'wb') as f:
             f.write(data)
         
-        text = parsing.convert_to_text(save)
-        print(text)
+        prompt = parsing.convert_to_text(save)
+        print(prompt)
         
-        print("======OpenAI=======")
-        openaiResponse(text)
+        #print("======OpenAI=======")
+        #openaiResponse(text)
 
-        print("======Gemini=======")
-        geminiResponse(text)
+        #print("======Gemini=======")
+        #geminiResponse(text)
+        
 
-    return {"filenames": [f.filename for f in file_uploads]}
+    return {generate_report(prompt,submission)}
 
 users_db = {}
 
@@ -112,6 +116,18 @@ def geminiResponse(prompt):
     response = model.generate_content(prompt)
     print(response.text)
     return response.text
+
+def generate_report(prompt, submission):
+    metrics = {'ChatGPT Cosine Similarity':0, 'Gemini Cosine Similarity':0}
+    for i in range(10):
+        chatgpt_response, gemini_response = openaiResponse(prompt), geminiResponse(prompt)
+        chatgpt_cosine_similarity, gemini_cosine_similarity = parsing.cosine_comparison(submission, chatgpt_response), parsing.cosine_comparison(submission, gemini_response)
+        # max_similarity = max(gpt_cosine_similarity, gemini_cosine_similarity)
+        if metrics['ChatGPT Cosine Similarity'] < chatgpt_cosine_similarity: metrics['ChatGPT Cosine Similarity'] = chatgpt_cosine_similarity
+        if metrics['Gemini Cosine Similarity'] < gemini_cosine_similarity: metrics['Gemini Cosine Similarity'] = gemini_cosine_similarity
+        
+        
+    return metrics
 
 def get_status(email):
     faculty_directory = []
