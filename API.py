@@ -29,16 +29,18 @@ app.add_middleware(
 )
   
 # class definition for what a user query object would have (used to define what the post function below requires as parameter)
-class UserQuery(BaseModel):
+class FormQuery(BaseModel):
     prompt: str
+    submission: str
 
 @app.post('/form_submission/') # this function needs to be defined as post since it relies on form data from the react app
-async def get_user_text(user_prompt: UserQuery): # this function needs to be asynchronous since it is waiting for the parameter from the react app
+async def get_user_text(form: FormQuery): # this function needs to be asynchronous since it is waiting for the parameter from the react app
     print("loading") # small message just so the connection from react app is known to have succeeded
     api_responses = []
+    #if not isinstance(form.prompt, str): form.prompt = parsing.convert_to_text(save)
 
-    api_responses.append(openaiResponse(user_prompt.prompt))
-    api_responses.append(geminiResponse(user_prompt.prompt))
+    api_responses.append(openaiResponse(form.prompt))
+    api_responses.append(geminiResponse(form.prompt))
         
     print(api_responses)
     return {"Responses":api_responses} # returning the response allows it to be used by the react-app
@@ -64,7 +66,8 @@ async def uploadFile(file_uploads: List[UploadFile] = []):
         #geminiResponse(text)
         
 
-    return {generate_report(prompt,submission)}
+    #return {generate_report(prompt,submission)}
+    return {"Success!"}
 
 users_db = {}
 
