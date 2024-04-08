@@ -1,0 +1,3 @@
+The cosine comparison converts the texts into numerical representations in the form of vectors, where each dimension represents the importance of 
+a particular word in the context of the entire text. The vectorization step uses cosine similarity which measures the cosine of 
+the angle between two vectors. This provides a similarity metric, indicating the degree of similarity between the two texts. 

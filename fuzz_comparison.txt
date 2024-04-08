@@ -1,0 +1,4 @@
+The fuzz comparison compares two strings in various sequence comparison functions from the FuzzyWuzzy Python library. strings
+can have a score out of 100 that denotes simalirty between strings with a similarity index. Fuzzy string matching finds strings 
+which match under a given pattern. The Levenshtein Distance is used to caluclate thedifference between string sequences. Levenshtein
+Distance between two words is the minimum number of single character edits required to change one string into the other. 

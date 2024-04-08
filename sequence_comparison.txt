@@ -1,0 +1,5 @@
+The sequence comparison compares string using difflib sequence matcher. This is an extension of 
+gestalt pattern matching which finds the longest contiguous matching subsequence that is applied to
+pieces of the sequence on the left and right of the matching subsequence. The extension of this 
+sequence matcher is the removal of whitespace and blank lines in the strings before they are turned 
+into sequences.
