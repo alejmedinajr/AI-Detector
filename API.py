@@ -7,7 +7,7 @@ from openai import OpenAI
 from pydantic import BaseModel
 
 import config
-
+import os
 import google.generativeai as genai
 
 import parsing
@@ -29,16 +29,18 @@ app.add_middleware(
 )
   
 # class definition for what a user query object would have (used to define what the post function below requires as parameter)
-class UserQuery(BaseModel):
+class FormQuery(BaseModel):
     prompt: str
+    submission: str
 
 @app.post('/form_submission/') # this function needs to be defined as post since it relies on form data from the react app
-async def get_user_text(user_prompt: UserQuery): # this function needs to be asynchronous since it is waiting for the parameter from the react app
+async def get_user_text(form: FormQuery): # this function needs to be asynchronous since it is waiting for the parameter from the react app
     print("loading") # small message just so the connection from react app is known to have succeeded
     api_responses = []
+    #if not isinstance(form.prompt, str): form.prompt = parsing.convert_to_text(save)
 
-    api_responses.append(openaiResponse(user_prompt.prompt))
-    api_responses.append(geminiResponse(user_prompt.prompt))
+    api_responses.append(openaiResponse(form.prompt))
+    api_responses.append(geminiResponse(form.prompt))
         
     print(api_responses)
     return {"Responses":api_responses} # returning the response allows it to be used by the react-app
@@ -47,20 +49,25 @@ async def get_user_text(user_prompt: UserQuery): # this function needs to be asy
 async def uploadFile(file_uploads: List[UploadFile] = []):
     for file_upload in file_uploads:
         data = await file_upload.read()
+        if not os.path.exists(UPLOAD_DIR): os.makedirs(UPLOAD_DIR)
+        
         save = UPLOAD_DIR / file_upload.filename
+
         with open(save, 'wb') as f:
             f.write(data)
         
-        text = parsing.convert_to_text(save)
-        print(text)
+        prompt = parsing.convert_to_text(save)
+        print(prompt)
         
-        print("======OpenAI=======")
-        openaiResponse(text)
+        #print("======OpenAI=======")
+        #openaiResponse(text)
 
-        print("======Gemini=======")
-        geminiResponse(text)
+        #print("======Gemini=======")
+        #geminiResponse(text)
+        
 
-    return {"filenames": [f.filename for f in file_uploads]}
+    #return {generate_report(prompt,submission)}
+    return {"Success!"}
 
 users_db = {}
 
@@ -112,6 +119,18 @@ def geminiResponse(prompt):
     response = model.generate_content(prompt)
     print(response.text)
     return response.text
+
+def generate_report(prompt, submission):
+    metrics = {'ChatGPT Cosine Similarity':0, 'Gemini Cosine Similarity':0}
+    for i in range(10):
+        chatgpt_response, gemini_response = openaiResponse(prompt), geminiResponse(prompt)
+        chatgpt_cosine_similarity, gemini_cosine_similarity = parsing.cosine_comparison(submission, chatgpt_response), parsing.cosine_comparison(submission, gemini_response)
+        # max_similarity = max(gpt_cosine_similarity, gemini_cosine_similarity)
+        if metrics['ChatGPT Cosine Similarity'] < chatgpt_cosine_similarity: metrics['ChatGPT Cosine Similarity'] = chatgpt_cosine_similarity
+        if metrics['Gemini Cosine Similarity'] < gemini_cosine_similarity: metrics['Gemini Cosine Similarity'] = gemini_cosine_similarity
+        
+        
+    return metrics
 
 def get_status(email):
     faculty_directory = []
