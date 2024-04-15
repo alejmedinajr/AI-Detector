@@ -1,0 +1,27 @@
+class Solution:
+    def mergeTwoLists(self, l1: ListNode, l2: ListNode) -> ListNode:
+        dummy = ListNode(0)
+        tail = dummy
+        dq1 = deque()
+        dq2 = deque()
+        
+        while l1:
+            dq1.append(l1)
+            l1 = l1.next
+        while l2:
+            dq2.append(l2)
+            l2 = l2.next
+            
+        while dq1 and dq2:
+            if dq1[0].val < dq2[0].val:
+                tail.next = dq1.popleft()
+            else:
+                tail.next = dq2.popleft()
+            tail = tail.next
+            
+        tail.next = dq1.popleft() if dq1 else dq2.popleft()
+        while dq1 or dq2:  # Attach remaining elements if any
+            tail.next = dq1.popleft() if dq1 else dq2.popleft()
+            tail = tail.next
+        
+        return dummy.next

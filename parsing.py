@@ -11,6 +11,10 @@ from sklearn.feature_extraction.text import TfidfVectorizer # used for convertin
 from sklearn.metrics.pairwise import cosine_similarity # used for comparing text using cosine comparison
 from itertools import combinations
 
+from nltk.corpus import wordnet
+from gensim.models import KeyedVectors
+from gensim.similarities import WmdSimilarity
+import spacy
 
 def process_directory(directory, file_list):
     """This helper function recursively processes an entire directory to get all files in it (and other subdirectories).
@@ -134,6 +138,7 @@ def sequence_comparison(t1, t2):
        Return:
        Maximum percentage of similarity between the two text strings using gestalt pattern matching.
     """
+    t1,t2 = preprocess_text(t1), preprocess_text(t2)
     matcher = difflib.SequenceMatcher(None, t1.splitlines(), t2.splitlines()) # using built in sequence matcher with both text lines
     comparisons = [matcher.ratio(), matcher.quick_ratio(), matcher.real_quick_ratio()] # using available comparison methods for a sequence matcher
     return max(comparisons) * 100, [ratio*100 for ratio in comparisons] # return the percentage of the maximum ratio of matching lines
@@ -152,6 +157,7 @@ def fuzz_comparison(t1, t2):
        Return:
        Maximum percentage of similarity between the two text strings using Levenshtein distance.
     """
+    t1,t2 = preprocess_text(t1), preprocess_text(t2)
     comparisons = [fuzz.ratio(t1,t2), fuzz.partial_ratio(t1,t2), fuzz.token_sort_ratio(t1,t2), fuzz.token_set_ratio(t1,t2)] # storing all possible sequence comparisons of this package
     return max(comparisons), comparisons # returning the maximum percentage of the sequences matching. 
 
@@ -170,8 +176,55 @@ def cosine_comparison(t1, t2):
        Return:
        Maximum percentage of similarity between the two text strings using cosine comparison.
     """
+    t1,t2 = preprocess_text(t1), preprocess_text(t2)
     matrix = TfidfVectorizer().fit_transform([t1, t2]) # using built in functions to fit and transform the text so it can be effectively used for a cosine comparison
     return cosine_similarity(matrix[0], matrix[1])[0][0] * 100 # return cosine similarity ratio multiplied by 100 to give a percentage
+
+def wu_palmer_comparison(t1, t2):
+    t1,t2 = preprocess_text(t1), preprocess_text(t2)
+    similarity_scores = []
+    for w1 in t1:
+        synsets1 = wordnet.synsets(w1)
+        for w2 in t2:
+            synsets2 = wordnet.synsets(w2)
+            similarity = max((synset1.wup_similarity(synset2) or 0) for synset1 in synsets1 for synset2 in synsets2)
+            similarity_scores.append(similarity)
+
+    return sum(similarity_scores) / len(similarity_scores)
+
+def path_comparison(t1, t2):
+    t1,t2 = preprocess_text(t1), preprocess_text(t2)
+    similarity_scores = []
+    for w1 in t1:
+        synsets1 = wordnet.synsets(w1)
+        for w2 in t2:
+            synsets2 = wordnet.synsets(w2)
+            similarity = max((synset1.path_similarity(synset2) or 0) for synset1 in synsets1 for synset2 in synsets2)
+            similarity_scores.append(similarity)
+
+    return sum(similarity_scores) / len(similarity_scores)
+
+def word_movers_comparison(t1, t2):
+    word_vectors = KeyedVectors.load_word2vec_format('glove.6B.300d.txt', binary=False)
+    
+    def preprocess(text):
+        # Tokenize and preprocess the text
+        words = [word.lower() for word in text.split() if word.isalnum()]
+        return [word for word in words if word in word_vectors.vocab]
+    
+    t1 = preprocess(t1)
+    t2 = preprocess(t2)
+    
+    if not t1 or not t2: return 0.0
+    
+    t1,t2 = preprocess_text(t1),preprocess_text(t2)
+    wmd_similarity = WmdSimilarity(corpus=[t1,t2], w2v_keyed_vectors=word_vectors)
+    return wmd_similarity[t1][1]
+
+def syntactic_comparison(t1, t2):
+    nlp = spacy.load('en_core_web_sm')
+    t1,t2 = nlp(t1),nlp(t2)
+    return t1.similarity(t2)*100
 
 def create_dataset(preprocessed_text):
     """This helper function takes preprocessed text and creates a dataset in the form of a list by
