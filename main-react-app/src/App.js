@@ -3,7 +3,7 @@ import "./App.css";
 import PromptForm from "./components/PromptForm";
 import FileForm from "./components/FileForm";
 import AccountHome from "./components/AccountHome";
-import { AuthenticationForm } from "./components/AuthenticationForm"; // Changed import here
+import { AuthenticationForm } from './components/AuthenticationForm.jsx';
 import { Box } from "@chakra-ui/react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import {getAuth, signOut} from "firebase/auth";
