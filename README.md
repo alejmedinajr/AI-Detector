@@ -29,6 +29,10 @@ This project currently has two components, the React App that serves as what the
 <BR>
 <b>Note: You must have BOTH of these running at the same time in order to successfully make queries to the AI API's</b>  
 
+Docker stuff: 
+- `docker build -t snitch-fastapi-image .`
+- `docker run -p 8000:8000 snitch-fastapi-image`
+
 # Contributors (alphabetical order)
 1. [Caleb Highsmith](https://github.com/Caleb-Highsmith)
 2. [Alejandro Medina](https://github.com/alejmedinajr)
