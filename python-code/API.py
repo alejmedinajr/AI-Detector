@@ -11,8 +11,9 @@ import os
 import google.generativeai as genai
 
 import parsing
-
+import uvicorn
 import database as db
+from metrics import METRICS
 
 UPLOAD_DIR = Path() / 'uploads'
 
@@ -41,9 +42,17 @@ async def get_user_text(form: FormQuery): # this function needs to be asynchrono
 
     api_responses.append(openaiResponse(form.prompt))
     api_responses.append(geminiResponse(form.prompt))
-        
+
     print(api_responses)
-    return {"Responses":api_responses} # returning the response allows it to be used by the react-app
+    return {"Responses": api_responses} # returning the response allows it to be used by the react-app
+
+@app.post('/generate_report/') # this function needs to be defined as post since it relies on form data from the react app
+async def get_user_text(form: FormQuery): # this function needs to be asynchronous since it is waiting for the parameter from the react app
+    print("loading") # small message just so the connection from react app is known to have succeeded
+    
+    report = generate_report(form.prompt, form.submission)
+    print(report)
+    return {"Report": report} # returning the response allows it to be used by the react-app
 
 @app.post('/uploadfile/') # this function needs to be defined as post since it relies on form data from the react app
 async def uploadFile(file_uploads: List[UploadFile] = []):
@@ -120,17 +129,38 @@ def geminiResponse(prompt):
     print(response.text)
     return response.text
 
-def generate_report(prompt, submission):
-    metrics = {'ChatGPT Cosine Similarity':0, 'Gemini Cosine Similarity':0}
-    for i in range(10):
+def generate_report(prompt, submission, num_iterations=1):
+    for _ in range(num_iterations):
         chatgpt_response, gemini_response = openaiResponse(prompt), geminiResponse(prompt)
-        chatgpt_cosine_similarity, gemini_cosine_similarity = parsing.cosine_comparison(submission, chatgpt_response), parsing.cosine_comparison(submission, gemini_response)
-        # max_similarity = max(gpt_cosine_similarity, gemini_cosine_similarity)
-        if metrics['ChatGPT Cosine Similarity'] < chatgpt_cosine_similarity: metrics['ChatGPT Cosine Similarity'] = chatgpt_cosine_similarity
-        if metrics['Gemini Cosine Similarity'] < gemini_cosine_similarity: metrics['Gemini Cosine Similarity'] = gemini_cosine_similarity
-        
-        
-    return metrics
+
+        for model, response in [('ChatGPT', chatgpt_response), ('Gemini', gemini_response)]:
+            cosine_sim = parsing.cosine_comparison(submission, response)
+            METRICS[model]['Cosine Similarity'] = max(METRICS[model]['Cosine Similarity'], cosine_sim)
+
+            _,fuzzy_metrics = parsing.fuzz_comparison(submission, response)
+            METRICS[model]['Ratio Similarity'] = max(METRICS[model]['Ratio Similarity'], fuzzy_metrics[0])
+            METRICS[model]['Partial Ratio Similarity'] = max(METRICS[model]['Partial Ratio Similarity'], fuzzy_metrics[1])
+            METRICS[model]['Token Sort Ratio Similarity'] = max(METRICS[model]['Token Sort Ratio Similarity'], fuzzy_metrics[2])
+            METRICS[model]['Token Set Ratio Similarity'] = max(METRICS[model]['Token Set Ratio Similarity'], fuzzy_metrics[3])
+
+            _,sequence_metrics = parsing.sequence_comparison(submission, response)
+            METRICS[model]['Sequence Ratio Similarity'] = max(METRICS[model]['Sequence Ratio Similarity'], sequence_metrics[0])
+            METRICS[model]['Sequence Quick Ratio Similarity'] = max(METRICS[model]['Sequence Quick Ratio Similarity'], sequence_metrics[1])
+            METRICS[model]['Sequence Real Quick Ratio Similarity'] = max(METRICS[model]['Sequence Real Quick Ratio Similarity'], sequence_metrics[2])
+
+            #wu_palmer_sim = parsing.wu_palmer_comparison(submission, response)
+            #METRICS[model]['Wu-Palmer Similarity'] = max(METRICS[model]['Wu-Palmer Similarity'], wu_palmer_sim)
+
+            #path_sim = parsing.path_similarity(submission, response)
+            #METRICS[model]['Path Similarity'] = max(METRICS[model]['Path Similarity'], path_sim)
+
+            #wmd_sim = parsing.word_movers_comparison(submission, response)
+            #METRICS[model]['Word Mover\'s Distance'] = max(METRICS[model]['Word Mover\'s Distance'], wmd_sim)
+
+            syntactic_sim = parsing.syntactic_comparison(submission, response)
+            METRICS[model]['Syntactic Similarity'] = max(METRICS[model]['Syntactic Similarity'], syntactic_sim)
+
+    return METRICS
 
 def get_status(email):
     faculty_directory = []
@@ -138,3 +168,5 @@ def get_status(email):
     elif 'southwestern.edu' in email: return 'Student'
     else: return None
    
+#if __name__ == "__main__":
+#    uvicorn.run("API:app", host="0.0.0.0", port=8000, reload=True)

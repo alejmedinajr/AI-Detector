@@ -5,8 +5,9 @@ import { getAuth, onAuthStateChanged, signOut } from "firebase/auth"; // Firebas
 import { useNavigate } from "react-router-dom";
 import ThemeToggleButton  from "./ThemeToggleButton";
 import FileForm from './FileForm';
-
 import pdfToText from 'react-pdftotext'
+
+import { getFirestore, collection, addDoc } from "firebase/firestore";
 
 function PromptForm({ onSignOut }) {
     //const [prompt, setPrompt] = useState("");
@@ -25,6 +26,8 @@ function PromptForm({ onSignOut }) {
     const [instructionInputMode, setInstructionInputMode] = useState('text'); // 'text' or 'file' for instruction
     const [submissionInputMode, setSubmissionInputMode] = useState('text'); // 'text' or 'file' for submission
     const [files, setFiles] = useState([]);
+
+    const [reportStatus, setReportStatus] = useState('');
 
     const auth = getAuth();
     const navigate = useNavigate();
@@ -111,6 +114,63 @@ function PromptForm({ onSignOut }) {
         }
     }, [prompt, submission]); // Depend on prompt to trigger fetch when it changes
 
+
+
+
+    // NEW CODE
+    const fetchReport = useCallback(async () => {
+        setIsLoading(true);
+        try {
+            const response = await fetch("http://localhost:8000/generate_report/", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    prompt: prompt,
+                    submission: submission
+                })
+            });
+    
+            if (response.ok) {
+                const responseData = await response.json();
+                setReportStatus('Report generated successfully'); // Update report status
+    
+                // Add the report to Firestore
+                const auth = getAuth();
+                const user = auth.currentUser;
+                if (user) {
+                    const db = getFirestore();
+                    const reportsCollection = collection(db, "reports");
+                    const newReport = {
+                        userId: user.uid,
+                        prompt: prompt,
+                        submission: submission,
+                        reportData: responseData.reportData, // Assuming the report data is in responseData.reportData
+                        timestamp: new Date()
+                    };
+                    await addDoc(reportsCollection, newReport);
+                }
+    
+                console.log(responseData);
+            } else {
+                setReportStatus('Failed to generate report'); // Update report status
+                console.error("Failed to generate report.");
+            }
+        } catch (error) {
+            setReportStatus('Failed to generate report'); // Update report status
+            console.error(error);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [prompt, submission]);
+
+
+
+
+
+
+    
     // Define a map of file types to parsing functions
     const fileTypeParsers = {
         'application/pdf':parsePDF,
@@ -164,6 +224,11 @@ function PromptForm({ onSignOut }) {
             console.error("Error signing out: ", error);
         }
     };
+
+    const handleReport = async () => {
+        fetchReport(); // Call fetchReport without waiting for it to complete
+        navigate('/account-home'); // Navigate to the account home page immediately
+    }
 
     const goToAccountHome = () => {
         navigate('/account-home');
@@ -312,15 +377,20 @@ function PromptForm({ onSignOut }) {
                         </Box>
                     </Flex>
                     <Flex direction="column" alignItems="center">
-                        <Button
-                            type="submit"
-                            colorScheme="blue"
-                            isLoading={isLoading}
-                            disabled={!prompt.trim()} // Disable button if prompt is empty
-                            mt={8}
-                        >
-                            Submit Prompt
-                        </Button>
+                        <ButtonGroup>
+                            <Button
+                                type="submit"
+                                colorScheme="blue"
+                                isLoading={isLoading}
+                                disabled={!prompt.trim()} // Disable button if prompt is empty
+                                mt={8}
+                            >
+                                Submit Prompt
+                            </Button>
+                            <Button onClick={handleReport} colorScheme="blue" size="md" marginLeft="4" mt={8}>
+                                Generate Report
+                            </Button>
+                        </ButtonGroup>
                         <Box mt={20}>
                             <Button
                                 onClick={() => handleButtonClick("ChatGPT")}
@@ -329,6 +399,7 @@ function PromptForm({ onSignOut }) {
                             >
                                 ChatGPT
                             </Button>
+
                             <Button
                                 onClick={() => handleButtonClick("Gemini/Bard")}
                                 colorScheme={selectedModel === "Gemini/Bard" ? "blue" : "gray"}
