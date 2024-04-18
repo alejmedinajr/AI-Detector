@@ -7,6 +7,7 @@ import { AuthenticationForm } from './components/AuthenticationForm.jsx';
 import { Box } from "@chakra-ui/react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import {getAuth, signOut} from "firebase/auth";
+import ReportTable from "./components/History.jsx";
 
 
 function App() {
@@ -46,6 +47,7 @@ function App() {
             ) : <Navigate to="/" />
           } />
           <Route path="/account-home" element={isAuthenticated ? <AccountHome /> : <Navigate to="/" />}/>
+          <Route path="/report-history" element={<ReportTable />} />
         </Routes>
       </Box>
     </Router>

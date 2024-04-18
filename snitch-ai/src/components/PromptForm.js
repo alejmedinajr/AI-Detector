@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import ThemeToggleButton  from "./ThemeToggleButton";
 import FileForm from './FileForm';
 import pdfToText from 'react-pdftotext'
-
+import ReportTable from './History';
 import { getFirestore, collection, addDoc } from "firebase/firestore";
 
 function PromptForm({ onSignOut }) {
@@ -266,6 +266,10 @@ function PromptForm({ onSignOut }) {
         navigate('/account-home');
     }
 
+    const goToHistory = () => {
+        navigate('/report-history');
+    }
+
     const toggleFormView = () => {
         setShowFileForm(!showFileForm); // Toggle between PromptForm and FileForm
     };
@@ -304,6 +308,14 @@ function PromptForm({ onSignOut }) {
                         marginLeft="4"
                     >
                         Go to Account Home
+                    </Button>
+                    <Button
+                        colorScheme="teal"
+                        size="md"
+                        onClick={goToHistory}
+                        marginLeft="4"
+                    >
+                        Report History
                     </Button>
                     {user ? (
                         <Button onClick={handleSignOut} colorScheme="red" size="md" marginLeft="4">
