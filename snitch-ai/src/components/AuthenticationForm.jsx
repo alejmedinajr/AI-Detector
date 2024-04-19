@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
 import app from '../firebase.js'; 
 import {Box, FormControl, FormLabel, Input, Button, VStack, Heading, Alert, AlertIcon, useColorModeValue} from '@chakra-ui/react';
 
@@ -13,6 +13,15 @@ export const AuthenticationForm = (props) => {
   function handleCredentials(event) {
     setUserCredentials({...userCredentials, [event.target.name]: event.target.value});
   }
+
+  function resetPassword(email) {
+      return sendPasswordResetEmail(auth, email).then((a) => {
+        alert("Password reset email sent")
+      }).catch((error) => {
+       alert("There is no account associated with that email. Or no email was provided")
+    });
+  }
+
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -73,6 +82,9 @@ export const AuthenticationForm = (props) => {
       </VStack>
       <Button variant="ghost" mt={4} onClick={() => setIsLogin(!isLogin)}>
         {isLogin ? 'Create an Account' : 'Back to Login'}
+      </Button>
+      <Button variant="ghost" mt={4} onClick={() => resetPassword(userCredentials.email)}>
+        {isLogin ? 'Forgot Password?' : ""}
       </Button>
     </Box>
   );
