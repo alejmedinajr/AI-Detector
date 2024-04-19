@@ -11,6 +11,9 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 
+AI_GENERATED = 1 # constant label for ai generated work
+HUMAN_GENERATED = 0 # constant label for human generated work
+
 def create_dataset(root_folder):
     """
     This helper function creates a pandas DataFrame containing the contents of text files in two subfolders: 'AI Solutions' and 'Human Solutions', where
@@ -23,25 +26,22 @@ def create_dataset(root_folder):
         pandas.DataFrame: A DataFrame that acts as the dataset created by getting all training data files and labeling them
     """
     data = []
-    ai_solutions_folder = os.path.join(root_folder, 'AI Solutions') # path to the 'AI Solutions' subfolder (so we know which files to label with a 1)
-    human_solutions_folder = os.path.join(root_folder, 'Human Solutions') # path to the 'Human Solutions' subfolder (so we know which files to label with a 0)
 
-    for folder_path, label in [(ai_solutions_folder, 1), (human_solutions_folder, 0)]: # iterate over the two subfolders and their respective labels (1 for 'AI Solutions' and 0 for 'Human Solutions')
-        if os.path.exists(folder_path):  # make sure the subfolder exists
-            for root, _, files in os.walk(folder_path): # recursively traverse through all files in the subfolder and its subdirectories
-                for file in files: 
-                    file_path = os.path.join(root, file)  # construct the full file path
-                    with open(file_path, 'r') as f:
-                        content = f.read()  # read the file content
-                    
-                    data.append({ # each data point is a dictionary with the file path, content, and label
-                        'Name': file_path,
-                        'Text': content,
-                        'Label': label
-                    })
-        else: print(f"Warning: Folder '{folder_path}' does not exist.")  # print warning that the folder path was not found
+    ai_solutions_folder = os.path.join(root_folder, 'AI Solutions') # ai labeled data
+    human_solutions_folder = os.path.join(root_folder, 'Human Solutions') # human labeled data
 
-    return pd.DataFrame(data) # return the data list as a pandas DataFrame (easier to use for machine learning predefined packages)
+    for folder_path, label in [(ai_solutions_folder, AI_GENERATED), (human_solutions_folder, HUMAN_GENERATED)]:
+        if os.path.exists(folder_path): # if the path exists, traverse it and get all files within
+            for file_name in os.listdir(folder_path): # each file in the subdirectory need to be added to the dataset
+                file_path = os.path.join(folder_path, file_name) # join to get the full file path
+                data.append({
+                    'Name': file_path,
+                    'Text': open(file_path, 'r').read(), # open the file and read the content
+                    'Label': label
+                })
+        else: print(f"Warning: Folder '{folder_path}' does not exist.") # at this point the file path was not found, reflect this
+
+    return pd.DataFrame(data)
     
 def extract_features(data):
     """
