@@ -20,6 +20,11 @@ const ReportTable = () => {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, currentUser => {
       setUser(currentUser);
+      if (currentUser) {
+        fetchUserReports(currentUser); // Call the fetch function with the current user
+      } else {
+        setIsLoading(false); // If no user, ensure loading is set to false
+      }
     });
 
     // Cleanup subscription on unmount
@@ -50,11 +55,14 @@ const ReportTable = () => {
 
   const navigate = useNavigate();
 
-  const goToAccountHome = () => {
+   // Ensure buttons for navigation do not submit forms or cause unintended actions
+   const goToAccountHome = (event) => {
+    event.preventDefault(); // Prevent default form submission behavior
     navigate('/account-home');
   };
 
-  const goToPromptForm = () => {
+  const goToPromptForm = (event) => {
+    event.preventDefault(); // Prevent default form submission behavior
     navigate('/prompt');
   };
 
