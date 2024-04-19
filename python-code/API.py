@@ -196,11 +196,7 @@ def train_model():
     model_path = 'model.pkl' 
     vectorizer_path = 'vectorizer.pkl' 
     
-    # Create labeled dataset (same as in models.py main function)
-    data = models.create_dataset(root_folder)
-    #print(data) 
-    #print(data['Label'].value_counts()) # ensuring the labeled data has two distinct labels
-
+    data = models.create_dataset(root_folder) # create labeled dataset (same as in models.py main function)
     features, vectorizer = models.extract_features(data) # extracting the features using an existing library: https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html
     labels = data['Label'] # the labels that will be used for the model are the 'Label' column of our dataset
     
