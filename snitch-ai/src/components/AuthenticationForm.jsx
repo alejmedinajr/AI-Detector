@@ -5,23 +5,31 @@ import {Box, FormControl, FormLabel, Input, Button, VStack, Heading, Alert, Aler
 
 export const AuthenticationForm = (props) => {
   const [userCredentials, setUserCredentials] = useState({ email: '', password: '', first_name: '', last_name: '' });
+  const [resetEmail, setResetEmail] = useState(''); // Separate state for reset email
   const [isLogin, setIsLogin] = useState(true);
   const [error, setError] = useState('');
+  const [showReset, setShowReset] = useState(false);
 
-  const auth = getAuth(app); // Initialize Firebase Auth
+  const auth = getAuth(app);
 
   function handleCredentials(event) {
     setUserCredentials({...userCredentials, [event.target.name]: event.target.value});
   }
 
   function resetPassword(email) {
-      return sendPasswordResetEmail(auth, email).then((a) => {
-        alert("Password reset email sent")
-      }).catch((error) => {
-       alert("There is no account associated with that email. Or no email was provided")
+    if (!email) {
+      alert("Please enter an email address.");
+      return;
+    }
+    return sendPasswordResetEmail(auth, email).then(() => {
+      alert("Password reset email sent.");
+      setShowReset(false); // Optionally reset the resetEmail state here if needed
+      setResetEmail('');
+    }).catch((error) => {
+      console.error(error.message);
+      alert("There is no account associated with that email.");
     });
   }
-
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -83,9 +91,24 @@ export const AuthenticationForm = (props) => {
       <Button variant="ghost" mt={4} onClick={() => setIsLogin(!isLogin)}>
         {isLogin ? 'Create an Account' : 'Back to Login'}
       </Button>
-      <Button variant="ghost" mt={4} onClick={() => resetPassword(userCredentials.email)}>
-        {isLogin ? 'Forgot Password?' : ""}
-      </Button>
+      {isLogin && (
+        <>
+          <Button variant="ghost" mt={4} onClick={() => setShowReset(!showReset)}>
+            Forgot Password?
+          </Button>
+          {showReset && (
+            <Box>
+              <Input 
+                placeholder="Enter your email to reset password" 
+                mt={2}
+                value={resetEmail} 
+                onChange={(e) => setResetEmail(e.target.value)}
+              />
+              <Button mt={2} onClick={() => resetPassword(resetEmail)}>Send Reset Email</Button>
+            </Box>
+          )}
+        </>
+      )}
     </Box>
   );
 };
