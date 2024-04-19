@@ -63,7 +63,7 @@ async def get_user_text(form: FormQuery): # this function needs to be asynchrono
     
     report = generate_report(form.prompt, form.submission) # calling helper function on the data that was sent to this endpoint
     print(report) # printing the report just to make sure it was made correctly
-    model_path = 'leetcode_model.pkl' # specifying path for the machine learning model (could use better name)
+    model_path = 'model.pkl' # specifying path for the machine learning model (could use better name)
     vectorizer_path = 'vectorizer.pkl' # specifying path for vectorizer for the ml model
     try: model,vectorizer = models.load_model(model_path, vectorizer_path) # attempt to load the model
     except: # if the model cannot be loaded, assume it has not been made, make the model.
@@ -90,16 +90,8 @@ async def get_user_text(request: Request): # request simply has a submission in 
     print("Loading") # loading message to know the endpoints are connected and the call was successful
 
     data = await request.json() 
-
-    report_submission = data.get('submission') # store the report's student submission (not necessary but cleaner in my opinion)
-    feedback = data.get('feedback') # store the feedback (correct label) for the submission (also not necessary but still cleaner since data is awaited)
-
-    # make sure both components were successfully retrieved
-    print("Data:", report_submission) 
-    print("Label:", feedback)
-
-    # TODO: Implement the ability to add the new data to the training data
-
+    datapoint = {'Text':data.get('submission'), 'Label':data.get('feedback')}
+    models.update_dataset(datapoint)
     return {"Response": "Training data updated"} # message to send to the react app (to know everything went smoothly)
 
 def openaiResponse(prompt):
@@ -200,15 +192,11 @@ def train_model():
     This helper function is a kickoff function (calls train_model from models.py) that trains a machine learning model 
     to classify text as AI-generated or human-generated. The trained model and the vectorizer created are both saved for future use.
     """
-    root_folder = 'LeetCode' # needs to be changed so the training data folder is more generic
-    model_path = 'leetcode_model.pkl' # also needs to be changed to a more generic path
+    root_folder = 'Training-Dataset' # needs to be changed so the training data folder is more generic
+    model_path = 'model.pkl' 
     vectorizer_path = 'vectorizer.pkl' 
     
-    # Create labeled dataset (same as in models.py main function)
-    data = models.create_dataset(root_folder)
-    #print(data) 
-    #print(data['Label'].value_counts()) # ensuring the labeled data has two distinct labels
-
+    data = models.create_dataset(root_folder) # create labeled dataset (same as in models.py main function)
     features, vectorizer = models.extract_features(data) # extracting the features using an existing library: https://scikit-learn.org/stable/modules/generated/sklearn.feature_extraction.text.TfidfVectorizer.html
     labels = data['Label'] # the labels that will be used for the model are the 'Label' column of our dataset
     
