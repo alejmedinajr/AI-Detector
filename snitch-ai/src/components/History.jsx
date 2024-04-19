@@ -149,9 +149,6 @@ const ReportTable = () => {
         
         <Box marginTop="2" marginBottom="4" display="flex" justifyContent="center">
         <ButtonGroup spacing={4} mt={1} justifyContent="center">
-            <Button colorScheme="teal" size="sm" onClick={goToPromptForm}>
-                Go to Prompt Form
-            </Button>
             <Button
                 colorScheme="teal"
                 size="sm"
@@ -159,6 +156,9 @@ const ReportTable = () => {
                 marginLeft="4"
             >
                 Go to Account Home
+            </Button>
+            <Button colorScheme="teal" size="sm" onClick={goToPromptForm}>
+                Go to Prompt Form
             </Button>
             <Button onClick={toggleDisplayModel} colorScheme="blue" size="sm">
                 Toggle Model: {displayModel}
