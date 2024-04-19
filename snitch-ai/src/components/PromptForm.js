@@ -260,9 +260,10 @@ function PromptForm({ onSignOut }) {
    };
 
    const handleSignOut = async () => {
+    const auth = getAuth()
        try {
            await signOut(auth);
-           navigate('/login'); // Navigate to the login route after successful sign-out
+           window.location.href = '/'; 
        } catch (error) {
            console.error("Error signing out: ", error);
        }
@@ -310,13 +311,9 @@ function PromptForm({ onSignOut }) {
                    >
                        Report History
                    </Button>
-                   {user ? (
                        <Button onClick={handleSignOut} colorScheme="red" size="md" marginLeft="4">
                            Sign Out
                        </Button>
-                   ) : (
-                       <Text>Please log in.</Text>
-                   )}
                </Box>
            </Box>
 
