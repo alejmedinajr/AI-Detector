@@ -431,7 +431,7 @@ function PromptForm({ onSignOut }) {
                            </Button>
                        </ButtonGroup>
                        <Flex direction="column" alignItems="center">
-                            <Button marginTop={10} onClick={onOpen}>Help</Button>
+                            <Button colorScheme="blue" marginTop={10} onClick={onOpen}>Help</Button>
                             <Modal isOpen={isOpen} onClose={onClose}>
                                 <ModalOverlay />
                                 <ModalContent>

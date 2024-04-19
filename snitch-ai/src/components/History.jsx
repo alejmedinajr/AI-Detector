@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth"; // Firebase imports
 import { getFirestore, collection, query, where, orderBy, getDocs, doc, updateDoc } from 'firebase/firestore';
-import { Icon, Button, ButtonGroup, Table, Thead, Tbody, Tr, Th, Td, Heading, Spinner, Box, Text, Flex } from "@chakra-ui/react";
+import { Icon, Button, ButtonGroup, Table, Thead, Tbody, Tr, Th, Td, Heading, Spinner, Box, Text, Flex, Stack, Modal, ModalOverlay,
+  ModalContent, ModalHeader, ModalBody, ModalFooter, ModalCloseButton, useDisclosure } from "@chakra-ui/react";
 import { FaThumbsUp, FaThumbsDown, FaRobot } from 'react-icons/fa';
 
 import { useNavigate } from "react-router-dom";
@@ -14,6 +15,13 @@ const ReportTable = () => {
   const [user, setUser] = useState(null); // State for storing user info
   const [feedbackSent, setFeedbackSent] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+  const {isOpen, onOpen, onClose} = useDisclosure();
+  const [isOpen1, setIsOpen1] = React.useState(false);
+  const [isOpen2, setIsOpen2] = React.useState(false);
+  const [isOpen3, setIsOpen3] = React.useState(false);
+  const onClose1 = () => setIsOpen1(false);
+  const onClose2 = () => setIsOpen2(false);
+  const onClose3 = () => setIsOpen3(false);
   const rowsPerPage = 10;
   const auth = getAuth();
 
@@ -252,6 +260,53 @@ const ReportTable = () => {
           <ThemeToggleButton />
         </ButtonGroup>
       </Box>
+
+      <Flex justifyContent='center' marginBottom="4">
+        <ButtonGroup spacing={4} mt={1} justifyContent='center'>
+          <Button colorScheme="blue" marginTop={2} onClick={() => setIsOpen1(true)}>Sequence Comparison</Button>
+            <Modal isOpen={isOpen1} onClose={onClose1}>
+              <ModalOverlay />
+              <ModalContent>
+                <ModalHeader>Sequence Information</ModalHeader>
+                <ModalCloseButton />
+                <ModalBody>
+                  The sequence comparison compares string using difflib sequence matcher. This is an extension of 
+                  gestalt pattern matching which finds the longest contiguous matching subsequence that is applied to
+                  pieces of the sequence on the left and right of the matching subsequence. The extension of this 
+                  sequence matcher is the removal of whitespace and blank lines in the strings before they are turned 
+                  into sequences.
+                </ModalBody>
+                </ModalContent>
+            </Modal>
+          <Button colorScheme="blue" marginTop={2} onClick={() => setIsOpen2(true)}>Cosign Comparison</Button>
+            <Modal isOpen={isOpen2} onClose={onClose2}>
+            <ModalOverlay />
+            <ModalContent>
+              <ModalHeader>Cosign Information</ModalHeader>
+              <ModalCloseButton />
+              <ModalBody>
+                The cosine comparison converts the texts into numerical representations in the form of vectors, where each dimension represents the importance of 
+                a particular word in the context of the entire text. The vectorization step uses cosine similarity which measures the cosine of 
+                the angle between two vectors. This provides a similarity metric, indicating the degree of similarity between the two texts. 
+              </ModalBody>
+            </ModalContent>
+          </Modal>
+          <Button colorScheme="blue" marginTop={2} onClick={() => setIsOpen3(true)}>FuzzyWuzzy Comparison</Button>
+            <Modal isOpen={isOpen3} onClose={onClose3}>
+            <ModalOverlay />
+            <ModalContent>
+              <ModalHeader>FuzzyWuzzy Information</ModalHeader>
+              <ModalCloseButton />
+              <ModalBody>
+                The fuzz comparison compares two strings in various sequence comparison functions from the FuzzyWuzzy Python library. strings
+                can have a score out of 100 that denotes simalirty between strings with a similarity index. Fuzzy string matching finds strings 
+                which match under a given pattern. The Levenshtein Distance is used to caluclate thedifference between string sequences. Levenshtein
+                Distance between two words is the minimum number of single character edits required to change one string into the other. 
+              </ModalBody>
+            </ModalContent>
+          </Modal>
+        </ButtonGroup>
+      </Flex>
 
       {isLoading ? (
         <Flex justify="center" align="center" height="200px">
