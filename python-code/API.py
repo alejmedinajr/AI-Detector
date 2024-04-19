@@ -63,7 +63,7 @@ async def get_user_text(form: FormQuery): # this function needs to be asynchrono
     
     report = generate_report(form.prompt, form.submission) # calling helper function on the data that was sent to this endpoint
     print(report) # printing the report just to make sure it was made correctly
-    model_path = 'leetcode_model.pkl' # specifying path for the machine learning model (could use better name)
+    model_path = 'model.pkl' # specifying path for the machine learning model (could use better name)
     vectorizer_path = 'vectorizer.pkl' # specifying path for vectorizer for the ml model
     try: model,vectorizer = models.load_model(model_path, vectorizer_path) # attempt to load the model
     except: # if the model cannot be loaded, assume it has not been made, make the model.
@@ -201,7 +201,7 @@ def train_model():
     to classify text as AI-generated or human-generated. The trained model and the vectorizer created are both saved for future use.
     """
     root_folder = 'LeetCode' # needs to be changed so the training data folder is more generic
-    model_path = 'leetcode_model.pkl' # also needs to be changed to a more generic path
+    model_path = 'model.pkl' 
     vectorizer_path = 'vectorizer.pkl' 
     
     # Create labeled dataset (same as in models.py main function)
