@@ -184,6 +184,8 @@ function PromptForm({ onSignOut }) {
                 prompt: prompt,
                 submission: submission,
                 reportData: responseData.Report, // Assuming the report data is in responseData.reportData
+                mlData: responseData.ML,
+                feedback: '',
                 timestamp: new Date()
               };
       

@@ -1,0 +1,12 @@
+from collections import deque
+
+class Solution:
+    def lengthOfLongestSubstring(self, s: str) -> int:
+        q = deque()
+        max_length = 0
+        for char in s:
+            while char in q:
+                q.popleft()
+            q.append(char)
+            max_length = max(max_length, len(q))
+        return max_length

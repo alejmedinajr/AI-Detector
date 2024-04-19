@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth"; // Firebase imports
-import { getFirestore, collection, query, where, orderBy, getDocs } from 'firebase/firestore';
-import { Button, ButtonGroup, Table, Thead, Tbody, Tr, Th, Td, Heading, Spinner, Box, Text, Flex } from "@chakra-ui/react";
+import { getFirestore, collection, query, where, orderBy, getDocs, doc, updateDoc} from 'firebase/firestore';
+import { Icon, Button, ButtonGroup, Table, Thead, Tbody, Tr, Th, Td, Heading, Spinner, Box, Text, Flex } from "@chakra-ui/react";
+import { FaThumbsUp, FaThumbsDown } from 'react-icons/fa';
+
 import { useNavigate } from "react-router-dom";
+import ThemeToggleButton  from "./ThemeToggleButton";
 
 const ReportTable = () => {
     const [userReports, setUserReports] = useState([]);
@@ -20,29 +23,25 @@ const ReportTable = () => {
         return () => unsubscribe();
     }, []);
     useEffect(() => {
-    fetchUserReports();
+        fetchUserReports();
     }, []);
 
     const fetchUserReports = async () => {
-    const auth = getAuth();
-    const user = auth.currentUser;
-    if (user) {
-        const db = getFirestore();
-        const reportsCollection = collection(db, "reports");
-        const userReportsQuery = query(
-        reportsCollection,
-        where("userId", "==", user.uid),
-        orderBy("timestamp", "desc")
-        );
-        const snapshot = await getDocs(userReportsQuery);
-        const userReports = snapshot.docs.map((doc) => doc.data());
-        setUserReports(userReports);
-        setIsLoading(false);
-    }
+        const auth = getAuth();
+        const user = auth.currentUser;
+        if (user) {
+            const db = getFirestore();
+            const reportsCollection = collection(db, "reports");
+            const userReportsQuery = query(reportsCollection, where("userId", "==", user.uid),orderBy("timestamp", "desc"));
+            const snapshot = await getDocs(userReportsQuery);
+            const userReports = snapshot.docs.map((doc) => doc.data());
+            setUserReports(userReports);
+            setIsLoading(false);
+        }
     };
 
     const toggleDisplayModel = () => {
-    setDisplayModel(displayModel === 'ChatGPT' ? 'Gemini' : 'ChatGPT');
+        setDisplayModel(displayModel === 'ChatGPT' ? 'Gemini' : 'ChatGPT');
     };
 
     const navigate = useNavigate();
@@ -64,19 +63,77 @@ const ReportTable = () => {
         }
     };
 
+    const handleFeedback = async (report, feedback) => {
+        try {
+          const response = await fetch('http://localhost:8000/update_training_data/', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                submission: report.submission,
+                feedback:
+                  (report.result === 'AI-Generated' && feedback === 'correct') ||
+                  (report.result === 'Human-Generated' && feedback === 'incorrect')
+                    ? 1
+                    : 0,
+                }),
+            });
+      
+          if (response.ok) {
+            console.log('Training data updated successfully');
+          } else {
+            console.error('Failed to update training data');
+          }
+        } catch (error) {
+          console.error('Error updating training data:', error);
+        }
+    };
+
     const renderReportData = (report) => {
-    const modelData = report.reportData[displayModel];
+    const metricData = report.reportData[displayModel];
+    const mlData = report.mlData;
     return (
         <>
-        <Td>{Math.round(modelData['Cosine Similarity'])}%</Td>
-        <Td>{Math.round(modelData['Partial Ratio Similarity'])}%</Td>
-        <Td>{Math.round(modelData['Ratio Similarity'])}%</Td>
-        <Td>{Math.round(modelData['Sequence Quick Ratio Similarity'])}%</Td>
-        <Td>{Math.round(modelData['Sequence Ratio Similarity'])}%</Td>
-        <Td>{Math.round(modelData['Sequence Real Quick Ratio Similarity'])}%</Td>
-        <Td>{Math.round(modelData['Syntactic Similarity'])}%</Td>
-        <Td>{Math.round(modelData['Token Set Ratio Similarity'])}%</Td>
-        <Td>{Math.round(modelData['Token Sort Ratio Similarity'])}%</Td>
+        <Td>{mlData}</Td>
+        <Td>
+          {report.feedback ? (
+            <Flex justify="center">
+              <Icon
+                as={report.feedback === 'correct' ? FaThumbsUp : FaThumbsDown}
+                color={report.feedback === 'correct' ? 'teal' : 'red'}
+                boxSize={6}
+              />
+            </Flex>
+          ) : (
+            <>
+              <Icon
+                as={FaThumbsUp}
+                color="gray.500"
+                boxSize={6}
+                cursor="pointer"
+                onClick={() => handleFeedback(report, "correct")}
+                mr={2}
+              />
+              <Icon
+                as={FaThumbsDown}
+                color="gray.500"
+                boxSize={6}
+                cursor="pointer"
+                onClick={() => handleFeedback(report, "incorrect")}
+              />
+            </>
+          )}
+        </Td>
+        <Td>{Math.round(metricData['Cosine Similarity'])}%</Td>
+        <Td>{Math.round(metricData['Partial Ratio Similarity'])}%</Td>
+        <Td>{Math.round(metricData['Ratio Similarity'])}%</Td>
+        <Td>{Math.round(metricData['Sequence Quick Ratio Similarity'])}%</Td>
+        <Td>{Math.round(metricData['Sequence Ratio Similarity'])}%</Td>
+        <Td>{Math.round(metricData['Sequence Real Quick Ratio Similarity'])}%</Td>
+        <Td>{Math.round(metricData['Syntactic Similarity'])}%</Td>
+        <Td>{Math.round(metricData['Token Set Ratio Similarity'])}%</Td>
+        <Td>{Math.round(metricData['Token Sort Ratio Similarity'])}%</Td>
         </>
     );
     };
@@ -113,6 +170,7 @@ const ReportTable = () => {
                     ) : (
                         <Text>Please log in.</Text>
                     )}
+            <ThemeToggleButton />
         </ButtonGroup>
             
         </Box>
@@ -128,6 +186,8 @@ const ReportTable = () => {
                 <Tr>
                 <Th>Date</Th>
                 <Th>Report ID</Th>
+                <Th>Machine Learning Prediction</Th>
+                <Th>Verify Prediction</Th>
                 <Th>Cosine Similarity</Th>
                 <Th>Partial Ratio Similarity</Th>
                 <Th>Ratio Similarity</Th>

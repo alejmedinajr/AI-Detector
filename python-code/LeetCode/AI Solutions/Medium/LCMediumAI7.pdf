@@ -1,0 +1,12 @@
+from collections import defaultdict
+
+class Solution:
+    def lengthOfLongestSubstring(self, s: str) -> int:
+        charMap = defaultdict(int)
+        left = 0
+        max_length = 0
+        for right, char in enumerate(s):
+            left = max(left, charMap[char])
+            max_length = max(max_length, right - left + 1)
+            charMap[char] = right + 1
+        return max_length

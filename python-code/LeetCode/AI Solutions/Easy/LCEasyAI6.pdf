@@ -1,0 +1,16 @@
+class Solution:
+    def mergeTwoLists(self, l1: ListNode, l2: ListNode) -> ListNode:
+        nodes = []
+        while l1:
+            nodes.append(l1.val)
+            l1 = l1.next
+        while l2:
+            nodes.append(l2.val)
+            l2 = l2.next
+        nodes.sort()
+        dummy = ListNode(0)
+        tail = dummy
+        for val in nodes:
+            tail.next = ListNode(val)
+            tail = tail.next
+        return dummy.next
