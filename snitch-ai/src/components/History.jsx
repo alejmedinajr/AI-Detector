@@ -22,6 +22,7 @@ const ReportTable = () => {
   const onClose1 = () => setIsOpen1(false);
   const onClose2 = () => setIsOpen2(false);
   const onClose3 = () => setIsOpen3(false);
+  const [showDefinition, setShowDefinition] = useState(true);
   const rowsPerPage = 10;
   const auth = getAuth();
 
@@ -270,27 +271,52 @@ const ReportTable = () => {
       </Box>
 
       <Flex justifyContent='center' marginBottom="4">
-        <ButtonGroup spacing={4} mt={1} justifyContent='center'>
-          <Button colorScheme="blue" marginTop={2} onClick={() => setIsOpen1(true)}>Sequence Comparison</Button>
+        <ButtonGroup spacing={4} mt={1} justifyContent='center' size="sm">
+          <Button colorScheme="gray" marginTop={2} onClick={() => setIsOpen1(true)}>Sequence Comparison</Button>
             <Modal isOpen={isOpen1} onClose={onClose1}>
               <ModalOverlay />
               <ModalContent>
                 <ModalHeader>Sequence Information</ModalHeader>
                 <ModalCloseButton />
                 <ModalBody>
-                  The sequence comparison compares string using difflib sequence matcher. This is an extension of 
-                  gestalt pattern matching which finds the longest contiguous matching subsequence that is applied to
-                  pieces of the sequence on the left and right of the matching subsequence. The extension of this 
-                  sequence matcher is the removal of whitespace and blank lines in the strings before they are turned 
-                  into sequences.
+                    <>
+                    {showDefinition ? (
+                        <div>
+                        <p>
+                            The sequence comparison compares string using difflib sequence matcher. This is an extension of  
+                            <i> gestalt</i> pattern matching which finds the longest contiguous matching subsequence that is applied to
+                            pieces of the sequence on the left and right of the matching subsequence. The extension of this 
+                            sequence matcher is the removal of whitespace and blank lines in the strings before they are turned 
+                            into sequences.
+                        </p>
+                        </div>
+                    ) : (
+                        <div align="center">
+                        <p>
+                            <b>Sentence 1:</b> "The quick brown fox jumps over the lazy dog"<br/><br />
+                            <b>Sentence 2:</b> "A fast brown fox leaps above a tired canine"<br/><br />
+                            In this example, the longest common subsequence (LCS) between these two sentences is <b>"brown fox"</b>.<br></br>
+                            <br></br>"The quick <b>brown fox</b> jumps over the lazy dog"<br></br>
+                            <br></br>"A fast <b>brown fox</b> leaps above a tired canine"<br></br><br></br>
+                            The similarity score can be calculated as the length of the LCS divided by the length of the longer string.
+                        </p>
+                        </div>
+                    )}
+                    <div align="center">
+                        <button onClick={() => setShowDefinition(!showDefinition)}>
+                            <br></br><b>{showDefinition ? 'Show Example' : 'Show Definition'}</b>
+                        </button>
+                    </div>
+                    
+                    </>
                 </ModalBody>
                 </ModalContent>
             </Modal>
-          <Button colorScheme="blue" marginTop={2} onClick={() => setIsOpen2(true)}>Cosign Comparison</Button>
+          <Button colorScheme="gray" marginTop={2} onClick={() => setIsOpen2(true)}>Cosine Comparison</Button>
             <Modal isOpen={isOpen2} onClose={onClose2}>
             <ModalOverlay />
             <ModalContent>
-              <ModalHeader>Cosign Information</ModalHeader>
+              <ModalHeader>Cosine Information</ModalHeader>
               <ModalCloseButton />
               <ModalBody>
                 The cosine comparison converts the texts into numerical representations in the form of vectors, where each dimension represents the importance of 
@@ -299,18 +325,51 @@ const ReportTable = () => {
               </ModalBody>
             </ModalContent>
           </Modal>
-          <Button colorScheme="blue" marginTop={2} onClick={() => setIsOpen3(true)}>FuzzyWuzzy Comparison</Button>
+          <Button colorScheme="gray" marginTop={2} onClick={() => setIsOpen3(true)}>FuzzyWuzzy Comparison</Button>
             <Modal isOpen={isOpen3} onClose={onClose3}>
             <ModalOverlay />
             <ModalContent>
               <ModalHeader>FuzzyWuzzy Information</ModalHeader>
               <ModalCloseButton />
               <ModalBody>
-                The fuzz comparison compares two strings in various sequence comparison functions from the FuzzyWuzzy Python library. strings
-                can have a score out of 100 that denotes simalirty between strings with a similarity index. Fuzzy string matching finds strings 
-                which match under a given pattern. The Levenshtein Distance is used to caluclate thedifference between string sequences. Levenshtein
-                Distance between two words is the minimum number of single character edits required to change one string into the other. 
-              </ModalBody>
+    <>
+      {showDefinition ? (
+        <div>
+          <p>
+            The fuzz comparison compares two strings in various sequence comparison functions from the FuzzyWuzzy Python library. Strings
+            can have a score out of 100 that denotes similarity between strings with a similarity index. Fuzzy string matching finds strings
+            which match under a given pattern. The Levenshtein Distance is used to calculate the difference between string sequences. Levenshtein
+            Distance between two words is the minimum number of single character edits required to change one string into the other.
+          </p>
+        </div>
+      ) : (
+        <div align="center">
+          <p>
+            <b>Sentence 1:</b> "The quick brown fox jumps over the lazy dog"<br/><br />
+            <b>Sentence 2:</b> "A fast brown fox leaps above a tired canine"<br/><br />
+            In this example, the Levenshtein distance between these two sentences is <b>7</b>:
+          </p>
+          <br></br>
+          
+            1. Replace "The" with "A"<br></br>
+            2. Replace "quick" with "fast"<br></br>
+            3. Replace "jumps" with "leaps"<br></br>
+            4. Replace "over" with "above"<br></br>
+            5. Replace "the" with "a"<br></br>
+            6. Replace "lazy" with "tired"<br></br>
+            7. Replace "dog" with "canine"<br></br>
+          
+        </div>
+      )}
+      <div align="center">
+        <button onClick={() => setShowDefinition(!showDefinition)}>
+            <br></br><b>{showDefinition ? 'Show Example' : 'Show Definition'}</b>
+        </button>
+      </div>
+      
+    </>
+
+</ModalBody>
             </ModalContent>
           </Modal>
         </ButtonGroup>
