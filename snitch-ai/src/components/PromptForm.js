@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Button, ButtonGroup, Textarea, VStack, Heading, Spinner, Box, Text, Flex } from "@chakra-ui/react";
+import { Button, ButtonGroup, Textarea, VStack, Heading, Spinner, Box, Text, Flex, Modal, ModalOverlay,
+    ModalContent, ModalHeader, ModalBody, ModalFooter, ModalCloseButton, useDisclosure } from "@chakra-ui/react";
 import { FaSpinner } from "react-icons/fa"; // Import loading spinner icon if needed
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth"; // Firebase imports
 import { useNavigate } from "react-router-dom";
@@ -12,6 +13,7 @@ function PromptForm({ onSignOut }) {
    const [responses, setResponses] = useState({});
    const [GPTResponse, setGPTResponse] = useState('');
    const [GeminiResponse, setGeminiResponse] = useState('');
+   const {isOpen, onOpen, onClose} = useDisclosure();
 
    const [isLoading, setIsLoading] = useState(false); // State to track loading state
    const [selectedModel, setSelectedModel] = useState("ChatGPT"); // Set ChatGPT as default selected model
@@ -428,6 +430,31 @@ function PromptForm({ onSignOut }) {
                                Generate Report
                            </Button>
                        </ButtonGroup>
+                       <Flex direction="column" alignItems="center">
+                            <Button colorScheme="blue" marginTop={10} onClick={onOpen}>Help</Button>
+                            <Modal isOpen={isOpen} onClose={onClose}>
+                                <ModalOverlay />
+                                <ModalContent>
+                                    <ModalHeader>Help Guide</ModalHeader>
+                                    <ModalCloseButton />
+                                    <ModalBody>
+                                        If you are putting code, put the raw code and try to leave out as much fluff as you can.
+                                        Extra long assingments might not be as accurately parsed as smaller text sizes.
+                                        You can toggle between putting raw texts and putting files(.pdf, .txt, .docx).
+                                        'Submit Prompt' button will send your text/file to the AI API you choose and give out a raw response
+                                        from them below. 
+                                        'Generate Report' button will give a summary about the accuracy of the inputed file/text and the AI response
+                                        as well as percentages of accuracy of each kind of comparison that is done on each text/file given. This report 
+                                        will be available on your personal report page.
+                                    </ModalBody>
+                                    <ModalFooter>
+                                        <Button colorScheme="red" mr={3} onClick={onClose}>
+                                            Close
+                                        </Button>
+                                    </ModalFooter>
+                                </ModalContent>
+                            </Modal>
+                        </Flex>
                        <Box mt={20}>
                            <Button
                                onClick={() => handleButtonClick("ChatGPT")}
