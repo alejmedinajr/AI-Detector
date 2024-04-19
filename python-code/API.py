@@ -200,7 +200,7 @@ def train_model():
     This helper function is a kickoff function (calls train_model from models.py) that trains a machine learning model 
     to classify text as AI-generated or human-generated. The trained model and the vectorizer created are both saved for future use.
     """
-    root_folder = 'LeetCode' # needs to be changed so the training data folder is more generic
+    root_folder = 'Training-Dataset' # needs to be changed so the training data folder is more generic
     model_path = 'model.pkl' 
     vectorizer_path = 'vectorizer.pkl' 
     
