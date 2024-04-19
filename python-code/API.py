@@ -90,16 +90,8 @@ async def get_user_text(request: Request): # request simply has a submission in 
     print("Loading") # loading message to know the endpoints are connected and the call was successful
 
     data = await request.json() 
-
-    report_submission = data.get('submission') # store the report's student submission (not necessary but cleaner in my opinion)
-    feedback = data.get('feedback') # store the feedback (correct label) for the submission (also not necessary but still cleaner since data is awaited)
-
-    # make sure both components were successfully retrieved
-    print("Data:", report_submission) 
-    print("Label:", feedback)
-
-    # TODO: Implement the ability to add the new data to the training data
-
+    datapoint = {'Text':data.get('submission'), 'Label':data.get('feedback')}
+    models.update_dataset(datapoint)
     return {"Response": "Training data updated"} # message to send to the react app (to know everything went smoothly)
 
 def openaiResponse(prompt):

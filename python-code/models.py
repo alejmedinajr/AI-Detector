@@ -2,6 +2,8 @@ import os
 import pandas as pd
 import joblib
 import parsing
+import random
+import string
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.ensemble import RandomForestClassifier
@@ -42,7 +44,32 @@ def create_dataset(root_folder):
         else: print(f"Warning: Folder '{folder_path}' does not exist.") # at this point the file path was not found, reflect this
 
     return pd.DataFrame(data)
-    
+
+def update_dataset(datapoint, dataset='Training-Dataset'):
+    """
+    This helper function add a new datapoint to the appropriate subdirectory within the dataset directory.
+
+    Parameters:
+        datapoint: Dictionary containing the 'Label' and 'Text' keys
+        dataset: Path to the dataset directory (default value is 'Training-Dataset')
+        
+    """
+    ai_solutions_dir = os.path.join(dataset, 'AI Solutions')
+    human_solutions_dir = os.path.join(dataset, 'Human Solutions')
+
+    if datapoint['Label'] == AI_GENERATED: target_dir = ai_solutions_dir
+    else: target_dir = human_solutions_dir
+
+    # generate a psuedo unique filename for the datapoint
+    filename = ''.join(random.choices(string.ascii_letters + string.digits, k=30))
+    filename = f"{filename}.txt"
+    file_path = os.path.join(target_dir, filename)
+
+    # Write the text content to the file
+    with open(file_path, 'w') as f: f.write(datapoint['Text'])
+
+    print(f"Datapoint added to {target_dir}") 
+
 def extract_features(data):
     """
     This helper function extracts features from text data using the TF-IDF (Term Frequency-Inverse Document Frequency) vectorization technique.
