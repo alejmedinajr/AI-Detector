@@ -77,7 +77,7 @@ const ReportTable = () => {
   const handleSignOut = async () => {
     try {
       await signOut(auth);
-      navigate('/login'); // Navigate to the login route after successful sign-out
+      window.location.href = '/';; // Navigate to the login route after successful sign-out
     } catch (error) {
       console.error("Error signing out: ", error);
     }

@@ -1,16 +1,32 @@
 import React, { useState } from 'react';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
+import { getDatabase, ref, set } from "firebase/database";
 import app from '../firebase.js'; 
-import {Box, FormControl, FormLabel, Input, Button, VStack, Heading, Alert, AlertIcon, useColorModeValue} from '@chakra-ui/react';
+import { Select, Box, FormControl, FormLabel, Input, Button, VStack, Heading, Alert, AlertIcon, useColorModeValue } from '@chakra-ui/react';
+import { useNavigate } from 'react-router-dom'; // Only if using React Router
+import { useToast } from '@chakra-ui/react';
+
 
 export const AuthenticationForm = (props) => {
-  const [userCredentials, setUserCredentials] = useState({ email: '', password: '', first_name: '', last_name: '' });
-  const [resetEmail, setResetEmail] = useState(''); // Separate state for reset email
+  const [userCredentials, setUserCredentials] = useState({
+    email: '', 
+    password: '', 
+    first_name: '', 
+    last_name: '', 
+    role: '',
+    university: ''
+  });
+  const [resetEmail, setResetEmail] = useState('');
   const [isLogin, setIsLogin] = useState(true);
   const [error, setError] = useState('');
   const [showReset, setShowReset] = useState(false);
 
   const auth = getAuth(app);
+  const db = getDatabase(app);
+
+  const toast = useToast();
+  const navigate = useNavigate(); 
+
 
   function handleCredentials(event) {
     setUserCredentials({...userCredentials, [event.target.name]: event.target.value});
@@ -21,46 +37,76 @@ export const AuthenticationForm = (props) => {
       alert("Please enter an email address.");
       return;
     }
-    return sendPasswordResetEmail(auth, email).then(() => {
-      alert("Password reset email sent.");
-      setShowReset(false); // Optionally reset the resetEmail state here if needed
-      setResetEmail('');
-    }).catch((error) => {
-      console.error(error.message);
-      alert("There is no account associated with that email.");
-    });
+    return sendPasswordResetEmail(auth, email)
+      .then(() => {
+        alert("Password reset email sent.");
+        setShowReset(false);
+        setResetEmail('');
+      })
+      .catch((error) => {
+        console.error(error.message);
+        alert("There is no account associated with that email.");
+      });
   }
 
   async function handleSubmit(event) {
     event.preventDefault();
-
     if (isLogin) {
       signInWithEmailAndPassword(auth, userCredentials.email, userCredentials.password)
-          .then((userCredential) => {
-              console.log(userCredential.user);
-              props.onAuthenticate(true);
-          })
-          .catch((error) => {
-              console.error(error.message);
-              setError(error.message);
-          });
+        .then((userCredential) => {
+          console.log(userCredential.user);
+          props.onAuthenticate(true);
+          navigate.push('/login'); // Redirect to login page
+        })
+        .catch((error) => {
+          console.error(error.message);
+          setError(error.message);
+        });
     } else {
       createUserWithEmailAndPassword(auth, userCredentials.email, userCredentials.password)
-          .then((userCredential) => {
-              console.log(userCredential.user);
-          })
-          .catch((error) => {
-              console.error(error.message);
-              setError(error.message);
+        .then((userCredential) => {
+          const user = userCredential.user;
+          const userRef = ref(db, 'users/' + user.uid);
+          return set(userRef, {
+            email: userCredentials.email,
+            role: userCredentials.role,
+            first_name: userCredentials.first_name,
+            last_name: userCredentials.last_name,
           });
+        })
+        .then(() => {
+          console.log("User profile created in Realtime Database");
+          toast({
+            title: "Account created.",
+            description: "Your account was successfully created!",
+            status: "success",
+            duration: 9000,
+            isClosable: true,
+          });
+          setIsLogin(true); // Switch to login form
+          // Optionally, you can redirect to login page as well:
+          // history.push('/login');
+        })
+        .catch((error) => {
+          console.error("Error in creating user profile:", error);
+          setError(error.message);
+          toast({
+            title: "Error creating account.",
+            description: error.message,
+            status: "error",
+            duration: 9000,
+            isClosable: true,
+          });
+        });
     }
   }
+  
 
   return (
     <Box p={5} my={10} mx="auto" maxW="md" borderWidth="1px" borderRadius="lg" boxShadow="lg" bg={useColorModeValue('gray.50', 'gray.700')}>
       {error && <Alert status="error" borderRadius={5}>
-          <AlertIcon />
-          {error}
+        <AlertIcon />
+        {error}
       </Alert>}
       <Heading mb={6}>{isLogin ? 'Login' : 'Sign Up'}</Heading>
       <VStack spacing={4} as="form" onSubmit={handleSubmit}>
@@ -73,6 +119,17 @@ export const AuthenticationForm = (props) => {
             <FormControl isRequired>
               <FormLabel htmlFor="last_name">Last Name</FormLabel>
               <Input id="last_name" type="text" placeholder='Your Last Name' name='last_name' value={userCredentials.last_name} onChange={handleCredentials} />
+            </FormControl>
+            <FormControl isRequired>
+              <FormLabel htmlFor="university">University</FormLabel>
+              <Input id="university" type="text" placeholder='Your University' name='university' value={userCredentials.university} onChange={handleCredentials} />
+            </FormControl>
+            <FormControl isRequired>
+              <FormLabel htmlFor="role">Role</FormLabel>
+              <Select id="role" name="role" placeholder="Select your role" value={userCredentials.role} onChange={handleCredentials}>
+                <option value="student">Student</option>
+                <option value="professor">Professor</option>
+              </Select>
             </FormControl>
           </>
         )}
