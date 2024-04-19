@@ -52,23 +52,16 @@ def update_dataset(datapoint, dataset='Training-Dataset'):
     Parameters:
         datapoint: Dictionary containing the 'Label' and 'Text' keys
         dataset: Path to the dataset directory (default value is 'Training-Dataset')
-        
     """
-    ai_solutions_dir = os.path.join(dataset, 'AI Solutions')
-    human_solutions_dir = os.path.join(dataset, 'Human Solutions')
 
-    if datapoint['Label'] == AI_GENERATED: target_dir = ai_solutions_dir
-    else: target_dir = human_solutions_dir
+    if datapoint['Label'] == AI_GENERATED: target_dir = os.path.join(dataset, 'AI Solutions') # define the path for ai labeled data points
+    else: target_dir = os.path.join(dataset, 'Human Solutions') # define the path for human labeled data points
 
-    # generate a psuedo unique filename for the datapoint
-    filename = ''.join(random.choices(string.ascii_letters + string.digits, k=30))
-    filename = f"{filename}.txt"
-    file_path = os.path.join(target_dir, filename)
+    filename = ''.join(random.choices(string.ascii_letters + string.digits, k=30)) # generate a psuedo unique filename for the datapoint
+    filename = f"{filename}.txt" # append txt file extension
+    file_path = os.path.join(target_dir, filename) # join to create the full file path
 
-    # Write the text content to the file
-    with open(file_path, 'w') as f: f.write(datapoint['Text'])
-
-    print(f"Datapoint added to {target_dir}") 
+    with open(file_path, 'w') as f: f.write(datapoint['Text']) # write the text content to the file
 
 def extract_features(data):
     """
