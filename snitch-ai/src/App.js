@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import "./App.css";
 import PromptForm from "./components/PromptForm";
-import FileForm from "./components/FileForm";
 import AccountHome from "./components/AccountHome";
 import { AuthenticationForm } from './components/AuthenticationForm.jsx';
 import { Box } from "@chakra-ui/react";

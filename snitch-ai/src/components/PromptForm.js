@@ -4,7 +4,6 @@ import { FaSpinner } from "react-icons/fa"; // Import loading spinner icon if ne
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth"; // Firebase imports
 import { useNavigate } from "react-router-dom";
 import ThemeToggleButton  from "./ThemeToggleButton";
-import FileForm from './FileForm';
 import pdfToText from 'react-pdftotext'
 import ReportTable from './History';
 import { getFirestore, collection, addDoc } from "firebase/firestore";
@@ -18,7 +17,6 @@ function PromptForm({ onSignOut }) {
     const [selectedModel, setSelectedModel] = useState("ChatGPT"); // Set ChatGPT as default selected model
     const [formSubmitted, setFormSubmitted] = useState(false); // State to track whether form has been submitted
     const [user, setUser] = useState(null); // State for storing user info
-    const [showFileForm, setShowFileForm] = useState(false); // Added state to toggle visibility
     
     // NEWLY ADDED
     // const [inputMode, setInputMode] = useState('text'); // if we want one or strictly the other
@@ -272,21 +270,6 @@ function PromptForm({ onSignOut }) {
         navigate('/report-history');
     }
 
-    const toggleFormView = () => {
-        setShowFileForm(!showFileForm); // Toggle between PromptForm and FileForm
-    };
-
-    if (showFileForm) {
-        return (
-            <Box>
-                <FileForm />
-                <Button colorScheme="teal" onClick={toggleFormView} mt="4">
-                    Back to Prompt Form
-                </Button>
-            </Box>
-        );
-    }
-
     return (
         <div>
             <Box
@@ -300,9 +283,6 @@ function PromptForm({ onSignOut }) {
             >
                 <ThemeToggleButton />
                 <Box marginTop="4" display="flex" justifyContent="center">
-                    <Button colorScheme="teal" size="md" onClick={toggleFormView}>
-                        Go to File Form
-                    </Button>
                     <Button
                         colorScheme="teal"
                         size="md"
