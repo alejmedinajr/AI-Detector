@@ -10,7 +10,6 @@ from fuzzywuzzy import fuzz # used for fuzzywuzzy way of comparing text (has fou
 from sklearn.feature_extraction.text import TfidfVectorizer # used for converting text into a vector
 from sklearn.metrics.pairwise import cosine_similarity # used for comparing text using cosine comparison
 from itertools import combinations
-
 from nltk.corpus import wordnet
 #from gensim.models import KeyedVectors
 #from gensim.similarities import WmdSimilarity
@@ -180,6 +179,9 @@ def cosine_comparison(t1, t2):
     matrix = TfidfVectorizer().fit_transform([t1, t2]) # using built in functions to fit and transform the text so it can be effectively used for a cosine comparison
     return cosine_similarity(matrix[0], matrix[1])[0][0] * 100 # return cosine similarity ratio multiplied by 100 to give a percentage
 
+"""
+Other comparisons that are not fully implemented yet/need to be fixed/cannot be implemented due to restrictions on being able to build the python script/time constraints to troubleshoot
+
 def wu_palmer_comparison(t1, t2):
     t1,t2 = preprocess_text(t1), preprocess_text(t2)
     similarity_scores = []
@@ -220,8 +222,21 @@ def word_movers_comparison(t1, t2):
     t1,t2 = preprocess_text(t1),preprocess_text(t2)
     wmd_similarity = WmdSimilarity(corpus=[t1,t2], w2v_keyed_vectors=word_vectors)
     return wmd_similarity[t1][1]
+"""
 
 def syntactic_comparison(t1, t2):
+    """
+    This helper function computes the syntactic similarity between two text strings using the spaCy library.
+    Syntactic similarity measures the structural and grammatical similarity between two sentences or texts, considering factors 
+    such as word order, sentence structure, and grammatical relationships. (Source: https://realpython.com/natural-language-processing-spacy-python/)
+
+    Parameters:
+        t1: First text string to be compared
+        t2: Second text string to be compared
+
+    Returns:
+        Float value representing the syntactic similarity score between t1 and t2, expressed as a percentage (0%-100%)
+    """
     nlp = spacy.load('en_core_web_sm')
     t1,t2 = nlp(t1),nlp(t2)
     return t1.similarity(t2)*100
@@ -270,10 +285,3 @@ def write_to_csv(name, dataset):
             writer.writerow(["Filename", "Fuzz Ratio", "Fuzz Partial Ratio", "Fuzz Token Sort Ratio", "Fuzz Token Set Ratio", "Cosine Comparison", "Length","Label"])
             
             for row in dataset: writer.writerow(row)    
-
-# Quick Testing
-#files = process_directory("LeetCode", [])
-#file_text = [(os.path.basename(file) , convert_to_text(file)) for file in files]
-#preprocessed_text = [(name,preprocess_text(text)) for name,text in file_text]
-#dataset = create_dataset(preprocessed_text)
-#write_to_csv('test.csv', dataset)
