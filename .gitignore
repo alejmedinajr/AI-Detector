@@ -5,3 +5,4 @@ firebase_adminsdk.json
 .DS_Store
 uploads/
 node_modules
+__pycache__/
