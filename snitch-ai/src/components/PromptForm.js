@@ -498,7 +498,7 @@ function PromptForm({ onSignOut }) {
                                type="submit"
                                colorScheme="blue"
                                isLoading={isLoading}
-                               disabled={!prompt.trim()} // Disable button if prompt is empty
+                               disabled={!prompt || !prompt.trim()} // Disable button if prompt is empty
                                mt={8}
                            >
                                Submit Prompt

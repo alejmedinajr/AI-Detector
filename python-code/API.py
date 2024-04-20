@@ -131,8 +131,26 @@ def geminiResponse(prompt):
     genai.configure(api_key=config.gemini_api_key)
     model = genai.GenerativeModel('gemini-pro')
     response = model.generate_content(prompt)
-    print(response.text)
-    return response.text
+    
+    print("Full response object:", response)  # Debug: print the full response object to inspect its structure
+
+    # Correct handling based on the actual response object structure
+    try:
+        # Attempt to directly access .text, which works only for single-part text responses
+        return response.text
+    except ValueError:
+        # Handle complex responses
+        if hasattr(response, 'parts'):
+            # If response contains multiple parts
+            return ''.join(part.text for part in response.parts if hasattr(part, 'text'))
+        elif hasattr(response, 'candidates'):
+            # If response contains multiple candidates, handle the first one's parts
+            first_candidate = response.candidates[0]
+            return ''.join(part.text for part in first_candidate.content.parts if hasattr(part, 'text'))
+        else:
+            # Log or handle the case where the response format is not recognized
+            print("Received an unsupported response format.")
+            return "Unsupported response format."
 
 def generate_report(prompt, submission, num_iterations=1):
     """
