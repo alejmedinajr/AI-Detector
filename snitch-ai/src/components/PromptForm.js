@@ -134,6 +134,7 @@ function PromptForm({ onSignOut }) {
                 title: "Prompt Too Long!",
                 description: "The prompt is too long. The maximum number of tokens supported is 100000, but your submitted prompt was " + encode(prompt).length + ". Please try again with a shorter prompt.",
                 status: "error",
+                position: "top", // position at the top of the screen
                 duration: 5000,
                 isClosable: true,
             });
@@ -173,6 +174,7 @@ function PromptForm({ onSignOut }) {
             title: "Prompt Too Long!",
             description: "The prompt is too long. The maximum number of tokens supported is 100000, but your submitted prompt was " + encode(prompt).length + ". Please try again with a shorter prompt.",
             status: "error",
+            position: "top", // position at the top of the screen
             duration: 5000,
             isClosable: true,
         });
@@ -476,53 +478,59 @@ function PromptForm({ onSignOut }) {
                                 </ModalContent>
                             </Modal>
                         </Flex>
-                       <Box mt={20}>
-                           <Button
-                               onClick={() => handleButtonClick("ChatGPT")}
-                               colorScheme={selectedModel === "ChatGPT" ? "blue" : "gray"}
-                               _hover={{ bg: "blue.500", color: "white" }}
-                           >
-                               ChatGPT
-                           </Button>
+                        {GPTResponse && (
+                            <Box mt={20}>
+                                <Button
+                                    onClick={() => handleButtonClick("ChatGPT")}
+                                    colorScheme={selectedModel === "ChatGPT" ? "blue" : "gray"}
+                                    _hover={{ bg: "blue.500", color: "white" }}
+                                >
+                                    ChatGPT
+                                </Button>
 
-                           <Button
-                               onClick={() => handleButtonClick("Gemini/Bard")}
-                               colorScheme={selectedModel === "Gemini/Bard" ? "blue" : "gray"}
-                               _hover={{ bg: "blue.500", color: "white" }}
-                               ml={4}
-                           >
-                               Gemini/Bard
-                               </Button>
-                        </Box>
+                                <Button
+                                    onClick={() => handleButtonClick("Gemini/Bard")}
+                                    colorScheme={selectedModel === "Gemini/Bard" ? "blue" : "gray"}
+                                    _hover={{ bg: "blue.500", color: "white" }}
+                                    ml={4}
+                                >
+                                Gemini/Bard
+                                </Button>
+                            </Box>
+                        )}
+                       
                     </Flex>
                 </form>
 
                 {/* Display selected model response */}
-                <Box mt={8}>
-                    {selectedModel === "ChatGPT" && (
-                        <Box>
-                            <h2>ChatGPT Response:</h2>
-                            <Textarea
-                                readOnly
-                                value={GPTResponse}
-                                width="100%"
-                                height="200px"
-                            />
-                        </Box>
-                    )}
+                {GPTResponse && (
+                    <Box mt={8}>
+                        {selectedModel === "ChatGPT" && (
+                            <Box>
+                                <h2>ChatGPT Response:</h2>
+                                <Textarea
+                                    readOnly
+                                    value={GPTResponse}
+                                    width="100%"
+                                    height="200px"
+                                />
+                            </Box>
+                        )}
 
-                    {selectedModel === "Gemini/Bard" && (
-                        <Box>
-                            <h2>Gemini/Bard Response:</h2>
-                            <Textarea
-                                readOnly
-                                value={GeminiResponse}
-                                width="100%"
-                                height="200px"
-                            />
-                        </Box>
-                    )}
-                </Box>
+                        {selectedModel === "Gemini/Bard" && (
+                            <Box>
+                                <h2>Gemini/Bard Response:</h2>
+                                <Textarea
+                                    readOnly
+                                    value={GeminiResponse}
+                                    width="100%"
+                                    height="200px"
+                                />
+                            </Box>
+                        )}
+                    </Box>
+                )}
+                
             </Box>
         </div>
     );
