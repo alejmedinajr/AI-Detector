@@ -6,6 +6,12 @@ import { Select, Box, FormControl, FormLabel, Input, Button, VStack, Heading, Al
 import { useNavigate } from 'react-router-dom'; // Only if using React Router
 import { useToast } from '@chakra-ui/react';
 
+// References:
+// https://v2.chakra-ui.com/docs/components
+// https://firebase.google.com/docs/auth
+// https://reactrouter.com/en/main/hooks/use-navigate
+// https://v2.chakra-ui.com/docs/components/toast
+
 
 export const AuthenticationForm = (props) => {
   const [userCredentials, setUserCredentials] = useState({

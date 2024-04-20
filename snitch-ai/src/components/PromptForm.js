@@ -10,6 +10,16 @@ import ReportTable from './History';
 import { getFirestore, collection, addDoc, doc, setDoc } from "firebase/firestore";
 import { encode } from 'gpt-tokenizer';
 
+// References:
+// https://v2.chakra-ui.com/docs/components
+// https://firebase.google.com/docs/firestore
+// https://firebase.google.com/docs/auth
+// https://reactrouter.com/en/main/hooks/use-navigate
+// https://v2.chakra-ui.com/docs/components/toast
+// https://www.npmjs.com/search?q=pdftotext
+// https://www.npmjs.com/package/gpt-tokenizer
+// https://reactrouter.com/en/main/hooks/use-navigate
+
 function PromptForm({ onSignOut }) {
     const toast = useToast();
 
