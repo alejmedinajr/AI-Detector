@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button, ButtonGroup, Textarea, VStack, Heading, Spinner, Box, Text, Flex, Modal, ModalOverlay,
-    ModalContent, ModalHeader, ModalBody, ModalFooter, ModalCloseButton, useDisclosure } from "@chakra-ui/react";
+    ModalContent, ModalHeader, ModalBody, ModalFooter, ModalCloseButton, useDisclosure, useToast } from "@chakra-ui/react";
 import { FaSpinner } from "react-icons/fa"; // Import loading spinner icon if needed
 import { getAuth, onAuthStateChanged, signOut } from "firebase/auth"; // Firebase imports
 import { useNavigate } from "react-router-dom";
@@ -8,30 +8,33 @@ import ThemeToggleButton from "./ThemeToggleButton";
 import pdfToText from 'react-pdftotext'
 import ReportTable from './History';
 import { getFirestore, collection, addDoc, doc, setDoc } from "firebase/firestore";
+import { encode } from 'gpt-tokenizer';
 
 function PromptForm({ onSignOut }) {
-   const [responses, setResponses] = useState({});
-   const [GPTResponse, setGPTResponse] = useState('');
-   const [GeminiResponse, setGeminiResponse] = useState('');
-   const {isOpen, onOpen, onClose} = useDisclosure();
+    const toast = useToast();
 
-   const [isLoading, setIsLoading] = useState(false); // State to track loading state
-   const [selectedModel, setSelectedModel] = useState("ChatGPT"); // Set ChatGPT as default selected model
-   const [formSubmitted, setFormSubmitted] = useState(false); // State to track whether form has been submitted
-   const [user, setUser] = useState(null); // State for storing user info
+    const [responses, setResponses] = useState({});
+    const [GPTResponse, setGPTResponse] = useState('');
+    const [GeminiResponse, setGeminiResponse] = useState('');
+    const {isOpen, onOpen, onClose} = useDisclosure();
 
-   // NEWLY ADDED
-   // const [inputMode, setInputMode] = useState('text'); // if we want one or strictly the other
-   const [prompt, setPrompt] = useState('');
-   const [submission, setSubmission] = useState('');
-   const [instructionInputMode, setInstructionInputMode] = useState('text'); // 'text' or 'file' for instruction
-   const [submissionInputMode, setSubmissionInputMode] = useState('text'); // 'text' or 'file' for submission
-   const [files, setFiles] = useState([]);
+    const [isLoading, setIsLoading] = useState(false); // State to track loading state
+    const [selectedModel, setSelectedModel] = useState("ChatGPT"); // Set ChatGPT as default selected model
+    const [formSubmitted, setFormSubmitted] = useState(false); // State to track whether form has been submitted
+    const [user, setUser] = useState(null); // State for storing user info
 
-   const [reportStatus, setReportStatus] = useState('');
+    // NEWLY ADDED
+    // const [inputMode, setInputMode] = useState('text'); // if we want one or strictly the other
+    const [prompt, setPrompt] = useState('');
+    const [submission, setSubmission] = useState('');
+    const [instructionInputMode, setInstructionInputMode] = useState('text'); // 'text' or 'file' for instruction
+    const [submissionInputMode, setSubmissionInputMode] = useState('text'); // 'text' or 'file' for submission
+    const [files, setFiles] = useState([]);
 
-   const auth = getAuth();
-   const navigate = useNavigate();
+    const [reportStatus, setReportStatus] = useState('');
+
+    const auth = getAuth();
+    const navigate = useNavigate();
 
    // Monitor auth state changes
    useEffect(() => {
@@ -126,95 +129,116 @@ function PromptForm({ onSignOut }) {
 
    // Function to fetch response from API
    const fetchResponse = useCallback(async (model) => {
-       setIsLoading(true);
-       try {
-           const response = await fetch("http://localhost:8000/form_submission/", {
-               method: "POST",
-               headers: {
-                   'Content-Type': 'application/json'
-               },
-               body: JSON.stringify({
-                   prompt: prompt,
-                   submission: submission
-               })
-           });
+        if(encode(prompt).length >= 100000) {
+            toast({
+                title: "Prompt Too Long!",
+                description: "The prompt is too long. The maximum number of tokens supported is 100000, but your submitted prompt was " + encode(prompt).length + ". Please try again with a shorter prompt.",
+                status: "error",
+                duration: 5000,
+                isClosable: true,
+            });
+        } else {
+            setIsLoading(true);
+            try {
+                const response = await fetch("http://localhost:8000/form_submission/", {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        prompt: prompt,
+                        submission: submission
+                    })
+                });
 
-           if (response.ok) {
-               const responseData = await response.json();
-               setGPTResponse(responseData.Responses[0]);
-               setGeminiResponse(responseData.Responses[1]);
-
-           } else {
-               console.error("Failed to get responses.");
-           }
-       } catch (error) {
-           console.error(error);
-       } finally {
-           setIsLoading(false);
-       }
-   }, [prompt, submission]); // Depend on prompt to trigger fetch when it changes
+                if (response.ok) {
+                    const responseData = await response.json();
+                    setGPTResponse(responseData.Responses[0]);
+                    setGeminiResponse(responseData.Responses[1]);
+                } else {
+                    console.error("Failed to get responses.");
+                }
+                } catch (error) {
+                console.error(error);
+                } finally {
+                setIsLoading(false);
+            }
+        }
+        
+    }, [prompt, submission, toast]);
 
    const fetchReport = useCallback(async () => {
-       setIsLoading(true);
+    if(encode(prompt).length >= 100000) {
+        toast({
+            title: "Prompt Too Long!",
+            description: "The prompt is too long. The maximum number of tokens supported is 100000, but your submitted prompt was " + encode(prompt).length + ". Please try again with a shorter prompt.",
+            status: "error",
+            duration: 5000,
+            isClosable: true,
+        });
+    } else {
+        setIsLoading(true);
 
-       try {
-           const response = await fetch("http://localhost:8000/generate_report/", {
-               method: "POST",
-               headers: {
-                   'Content-Type': 'application/json'
-               },
-               body: JSON.stringify({
-                   prompt: prompt,
-                   submission: submission
-               })
-           });
-
-           if (response.ok) {
-               const responseData = await response.json();
-               setReportStatus('Report generated successfully'); // Update report status
-
-               // Add the report to Firestore
-               const auth = getAuth();
-               const user = auth.currentUser;
-               if (user) {
-                   const db = getFirestore();
-                   const reportsCollection = collection(db, "reports");
-
-                   // Generate a custom document ID
-                   const customDocumentId = doc(reportsCollection).id;
-                   const newReport = {
-                       reportId: customDocumentId,
-                       userId: user.uid,
-                       prompt: prompt,
-                       submission: submission,
-                       reportData: responseData.Report,
-                       mlData: responseData.ML,
-                       feedback: false,
-                       timestamp: new Date()
-                   };
-
-                   // Create a document reference with the custom document ID
-                   const docRef = doc(reportsCollection, customDocumentId);
-
-                   // Set the document data with the custom document ID
-                   await setDoc(docRef, newReport);
-
-                   // You can now access the custom document ID
-                   console.log('New report with custom ID:', customDocumentId);
-               }
-
-               console.log(responseData);
-           } else {
-               setReportStatus('Failed to generate report'); // Update report status
-               console.error("Failed to generate report.");
-           }
-       } catch (error) {
-           setReportStatus('Failed to generate report'); // Update report status
-           console.error(error);
-       } finally {
-           setIsLoading(false);
-       }
-   }, [prompt, submission]);
+        try {
+            const response = await fetch("http://localhost:8000/generate_report/", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    prompt: prompt,
+                    submission: submission
+                })
+            });
+ 
+            if (response.ok) {
+                const responseData = await response.json();
+                setReportStatus('Report generated successfully'); // Update report status
+ 
+                // Add the report to Firestore
+                const auth = getAuth();
+                const user = auth.currentUser;
+                if (user) {
+                    const db = getFirestore();
+                    const reportsCollection = collection(db, "reports");
+ 
+                    // Generate a custom document ID
+                    const customDocumentId = doc(reportsCollection).id;
+                    const newReport = {
+                        reportId: customDocumentId,
+                        userId: user.uid,
+                        prompt: prompt,
+                        submission: submission,
+                        reportData: responseData.Report,
+                        mlData: responseData.ML,
+                        feedback: false,
+                        timestamp: new Date()
+                    };
+ 
+                    // Create a document reference with the custom document ID
+                    const docRef = doc(reportsCollection, customDocumentId);
+ 
+                    // Set the document data with the custom document ID
+                    await setDoc(docRef, newReport);
+ 
+                    // You can now access the custom document ID
+                    console.log('New report with custom ID:', customDocumentId);
+                }
+ 
+                console.log(responseData);
+            } else {
+                setReportStatus('Failed to generate report'); // Update report status
+                console.error("Failed to generate report.");
+            }
+        } catch (error) {
+            setReportStatus('Failed to generate report'); // Update report status
+            console.error(error);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+       
+   }, [prompt, submission, toast]);
 
    // Define a map of file types to parsing functions
    const fileTypeParsers = {
