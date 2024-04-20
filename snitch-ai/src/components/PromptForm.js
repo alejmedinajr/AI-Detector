@@ -134,6 +134,16 @@ function PromptForm({ onSignOut }) {
                 title: "Prompt Too Long!",
                 description: "The prompt is too long. The maximum number of tokens supported is 100000, but your submitted prompt was " + encode(prompt).length + ". Please try again with a shorter prompt.",
                 status: "error",
+                position: "top", // position at the top of the screen
+                duration: 5000,
+                isClosable: true,
+            });
+        } else if(encode(prompt).length === 0) {
+            toast({
+                title: "No prompt sent!",
+                description: "You must have forgotten to send a prompt!",
+                status: "error",
+                position: "top", // position at the top of the screen
                 duration: 5000,
                 isClosable: true,
             });
@@ -173,6 +183,25 @@ function PromptForm({ onSignOut }) {
             title: "Prompt Too Long!",
             description: "The prompt is too long. The maximum number of tokens supported is 100000, but your submitted prompt was " + encode(prompt).length + ". Please try again with a shorter prompt.",
             status: "error",
+            position: "top", // position at the top of the screen
+            duration: 5000,
+            isClosable: true,
+        });
+    } else if(encode(prompt).length === 0) {
+        toast({
+            title: "No prompt sent!",
+            description: "You must have forgotten to send a prompt!",
+            status: "error",
+            position: "top", // position at the top of the screen
+            duration: 5000,
+            isClosable: true,
+        });
+    } else if(encode(submission).length === 0) {
+        toast({
+            title: "No submission sent!",
+            description: "You must have forgotten to enter a submission!",
+            status: "error",
+            position: "top", // position at the top of the screen
             duration: 5000,
             isClosable: true,
         });
@@ -221,10 +250,19 @@ function PromptForm({ onSignOut }) {
                     // Set the document data with the custom document ID
                     await setDoc(docRef, newReport);
  
-                    // You can now access the custom document ID
                     console.log('New report with custom ID:', customDocumentId);
+                    toast({
+                        title: "New Report made!",
+                        description: "Your new report has been created: " + customDocumentId,
+                        status: "success",
+                        position: "bottom", // position at the bottom of the screen
+                        duration: 10000,
+                        isClosable: true,
+                    });
+
                 }
- 
+                
+
                 console.log(responseData);
             } else {
                 setReportStatus('Failed to generate report'); // Update report status
@@ -295,10 +333,28 @@ function PromptForm({ onSignOut }) {
        }
    };
 
-   const handleReport = async () => {
-       fetchReport(); // Call fetchReport without waiting for it to complete
-       navigate('/report-history'); // Navigate to the account home page immediately
-   }
+    const handleReport = async () => {
+       if(encode(submission).length > 0 && encode(prompt).length > 0 ) {
+        fetchReport(); // Call fetchReport without waiting for it to complete
+            toast({
+                title: "Report Request Sent!",
+                description: "It could take some time to generate your report, but when it is done, you will receive a notification on the bottom of the screen!",
+                status: "warning",
+                position: "top", // position at the top of the screen
+                duration: 10000,
+                isClosable: true,
+            });
+       } else {
+            toast({
+                title: "Prompt and/or Submission are missing!",
+                description: "You must fill out both components of the form (prompt and submission) in order to generate a report!",
+                status: "error",
+                position: "top", // position at the top of the screen
+                duration: 10000,
+                isClosable: true,
+            });
+       }
+    }
 
    const goToAccountHome = () => {
        navigate('/account-home');
@@ -476,53 +532,59 @@ function PromptForm({ onSignOut }) {
                                 </ModalContent>
                             </Modal>
                         </Flex>
-                       <Box mt={20}>
-                           <Button
-                               onClick={() => handleButtonClick("ChatGPT")}
-                               colorScheme={selectedModel === "ChatGPT" ? "blue" : "gray"}
-                               _hover={{ bg: "blue.500", color: "white" }}
-                           >
-                               ChatGPT
-                           </Button>
+                        {GPTResponse && (
+                            <Box mt={20}>
+                                <Button
+                                    onClick={() => handleButtonClick("ChatGPT")}
+                                    colorScheme={selectedModel === "ChatGPT" ? "blue" : "gray"}
+                                    _hover={{ bg: "blue.500", color: "white" }}
+                                >
+                                    ChatGPT
+                                </Button>
 
-                           <Button
-                               onClick={() => handleButtonClick("Gemini/Bard")}
-                               colorScheme={selectedModel === "Gemini/Bard" ? "blue" : "gray"}
-                               _hover={{ bg: "blue.500", color: "white" }}
-                               ml={4}
-                           >
-                               Gemini/Bard
-                               </Button>
-                        </Box>
+                                <Button
+                                    onClick={() => handleButtonClick("Gemini/Bard")}
+                                    colorScheme={selectedModel === "Gemini/Bard" ? "blue" : "gray"}
+                                    _hover={{ bg: "blue.500", color: "white" }}
+                                    ml={4}
+                                >
+                                Gemini/Bard
+                                </Button>
+                            </Box>
+                        )}
+                       
                     </Flex>
                 </form>
 
                 {/* Display selected model response */}
-                <Box mt={8}>
-                    {selectedModel === "ChatGPT" && (
-                        <Box>
-                            <h2>ChatGPT Response:</h2>
-                            <Textarea
-                                readOnly
-                                value={GPTResponse}
-                                width="100%"
-                                height="200px"
-                            />
-                        </Box>
-                    )}
+                {GPTResponse && (
+                    <Box mt={8}>
+                        {selectedModel === "ChatGPT" && (
+                            <Box>
+                                <h2>ChatGPT Response:</h2>
+                                <Textarea
+                                    readOnly
+                                    value={GPTResponse}
+                                    width="100%"
+                                    height="200px"
+                                />
+                            </Box>
+                        )}
 
-                    {selectedModel === "Gemini/Bard" && (
-                        <Box>
-                            <h2>Gemini/Bard Response:</h2>
-                            <Textarea
-                                readOnly
-                                value={GeminiResponse}
-                                width="100%"
-                                height="200px"
-                            />
-                        </Box>
-                    )}
-                </Box>
+                        {selectedModel === "Gemini/Bard" && (
+                            <Box>
+                                <h2>Gemini/Bard Response:</h2>
+                                <Textarea
+                                    readOnly
+                                    value={GeminiResponse}
+                                    width="100%"
+                                    height="200px"
+                                />
+                            </Box>
+                        )}
+                    </Box>
+                )}
+                
             </Box>
         </div>
     );

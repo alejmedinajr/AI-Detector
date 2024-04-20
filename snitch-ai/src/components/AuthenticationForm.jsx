@@ -39,13 +39,27 @@ export const AuthenticationForm = (props) => {
     }
     return sendPasswordResetEmail(auth, email)
       .then(() => {
-        alert("Password reset email sent.");
+        toast({
+          title: "Password reset email sent.",
+          description: "Check your email to reset your password!",
+          position: "top", // position at the top of the screen
+          status: "success",
+          duration: 9000,
+          isClosable: true,
+        });
         setShowReset(false);
         setResetEmail('');
       })
       .catch((error) => {
         console.error(error.message);
-        alert("There is no account associated with that email.");
+        toast({
+          title: "Email does not exist.",
+          description: "Double check to make sure your email is correct!",
+          status: "failure",
+          position: "top", // position at the top of the screen
+          duration: 9000,
+          isClosable: true,
+        });
       });
   }
 
