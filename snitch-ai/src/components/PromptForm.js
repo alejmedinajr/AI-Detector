@@ -297,7 +297,7 @@ function PromptForm({ onSignOut }) {
 
    const handleReport = async () => {
        fetchReport(); // Call fetchReport without waiting for it to complete
-       navigate('/account-home'); // Navigate to the account home page immediately
+       navigate('/report-history'); // Navigate to the account home page immediately
    }
 
    const goToAccountHome = () => {
@@ -442,7 +442,7 @@ function PromptForm({ onSignOut }) {
                                type="submit"
                                colorScheme="blue"
                                isLoading={isLoading}
-                               disabled={!prompt.trim()} // Disable button if prompt is empty
+                               disabled={!prompt || !prompt.trim()} // Disable button if prompt is empty
                                mt={8}
                            >
                                Submit Prompt
