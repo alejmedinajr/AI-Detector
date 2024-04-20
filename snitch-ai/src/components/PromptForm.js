@@ -160,7 +160,9 @@ function PromptForm({ onSignOut }) {
         } else {
             setIsLoading(true);
             try {
-                const response = await fetch("http://localhost:8000/form_submission/", {
+                //const response = await fetch("http://localhost:8000/form_submission/", {
+                const response = await fetch("https://snitch-ai-fastapi.onrender.com/form_submission/", {
+                
                     method: "POST",
                     headers: {
                         'Content-Type': 'application/json'
@@ -219,7 +221,9 @@ function PromptForm({ onSignOut }) {
         setIsLoading(true);
 
         try {
-            const response = await fetch("http://localhost:8000/generate_report/", {
+            //const response = await fetch("http://localhost:8000/generate_report/", {
+            const response = await fetch("https://snitch-ai-fastapi.onrender.com/generate_report/", {
+                
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json'
