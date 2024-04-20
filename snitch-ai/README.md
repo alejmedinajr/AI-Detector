@@ -1,6 +1,23 @@
-# Getting Started with Create React App
+# Getting Started with SNITCH:AI
+This is a breakdown of each of our react components as well as some additional commands that can be ran on local. See below for the previously mentioned commands. 
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# SNITCH:AI Components
+
+## Account Home
+This is the home page for the current user. This component allows the user to update their account credentials and to create a custom AI detection model if the account is a professor account. 
+
+## Authentication Form
+This is where all of the account creation and login code paths are housed. Everything is authenticated to Firebase. Which is what we use for hosting SNITCH:AI and as a real-time database for storing user account information.
+
+## History
+This is where the full report on whether or not an assignment was AI generated or not can be found. History holds all of the past submissions that a professor has uploaded so they can see which assignments were AI generated in the past. This page also allows the user to verify whether or not a work was actually AI generated, which will then be used to train SNITCH:AI's custom model. 
+
+## Prompt Form 
+This is where the professor can upload student's assignments or a prompt that they predict that a student used to generate AI work. If the professor thinks that they know what prompt the student used, they can simply input the question that was being asked to the student on the assignment and then input the suspected prompt. This will return a raw response from the integrated AI models (ChatGPT/Gemini). 
+
+## Theme/Light and Dark mode
+This is a simple component that allows the users (regardless of role) to change the theme from light mode to dark mode based on their preference. 
+
 
 ## Available Scripts
 
