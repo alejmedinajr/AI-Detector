@@ -45,6 +45,7 @@ export const AuthenticationForm = (props) => {
     }
     return sendPasswordResetEmail(auth, email)
       .then(() => {
+        // display a nicer looking message for the user (popup but not the basic alert)
         toast({
           title: "Password reset email sent.",
           description: "Check your email to reset your password!",
@@ -56,7 +57,7 @@ export const AuthenticationForm = (props) => {
         setShowReset(false);
         setResetEmail('');
       })
-      .catch((error) => {
+      .catch((error) => { // if there was an error, display this error to the user
         console.error(error.message);
         toast({
           title: "Email does not exist.",
@@ -69,6 +70,10 @@ export const AuthenticationForm = (props) => {
       });
   }
 
+  {/* This function is focuses on handling the submit for the login/signup form. 
+      It only works if the user enters a valid email/password (using firebase authentication).
+      If the user chooses to create a new account, then the create account predefined function is used.
+  */}
   async function handleSubmit(event) {
     event.preventDefault();
     if (isLogin) {
@@ -86,7 +91,7 @@ export const AuthenticationForm = (props) => {
       createUserWithEmailAndPassword(auth, userCredentials.email, userCredentials.password)
         .then((userCredential) => {
           const user = userCredential.user;
-          const userRef = ref(db, 'users/' + user.uid);
+          const userRef = ref(db, 'users/' + user.uid); // need a reference to the user object
           return set(userRef, {
             email: userCredentials.email,
             role: userCredentials.role,
@@ -94,7 +99,7 @@ export const AuthenticationForm = (props) => {
             last_name: userCredentials.last_name,
           });
         })
-        .then(() => {
+        .then(() => { // alert to the console that the user was added to the realtime database
           console.log("User profile created in Realtime Database");
           toast({
             title: "Account created.",

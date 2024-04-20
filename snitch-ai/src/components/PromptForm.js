@@ -56,12 +56,11 @@ function PromptForm({ onSignOut }) {
        return () => unsubscribe();
    }, []);
 
-   // NEWLY ADDED
-   const handleInstructionToggleButtonClick = (mode) => {
-       setInstructionInputMode(mode);
+   const handleInstructionToggleButtonClick = (mode) => { // handle toggle for instruction input (file or text)
+       setInstructionInputMode(mode); 
    };
 
-   const handleSubmissionToggleButtonClick = (mode) => {
+   const handleSubmissionToggleButtonClick = (mode) => { // handle toggle for submission input (file or text)
        setSubmissionInputMode(mode);
    };
 
@@ -140,7 +139,7 @@ function PromptForm({ onSignOut }) {
    // Function to fetch response from API
    const fetchResponse = useCallback(async (model) => {
         if(encode(prompt).length >= 100000) {
-            toast({
+            toast({ // predefined maximum token size for ai api's
                 title: "Prompt Too Long!",
                 description: "The prompt is too long. The maximum number of tokens supported is 100000, but your submitted prompt was " + encode(prompt).length + ". Please try again with a shorter prompt.",
                 status: "error",
@@ -149,7 +148,7 @@ function PromptForm({ onSignOut }) {
                 isClosable: true,
             });
         } else if(encode(prompt).length === 0) {
-            toast({
+            toast({ // a prompt needs to be included (otherwise whats the point (it also crashes if there is no prompt sent to chatgpt or gemini api))
                 title: "No prompt sent!",
                 description: "You must have forgotten to send a prompt!",
                 status: "error",
@@ -160,9 +159,7 @@ function PromptForm({ onSignOut }) {
         } else {
             setIsLoading(true);
             try {
-                //const response = await fetch("http://localhost:8000/form_submission/", {
-                const response = await fetch("https://snitch-ai-fastapi.onrender.com/form_submission/", {
-                
+                const response = await fetch("http://localhost:8000/form_submission/", { // make call to fastAPI endpoint
                     method: "POST",
                     headers: {
                         'Content-Type': 'application/json'
@@ -174,7 +171,7 @@ function PromptForm({ onSignOut }) {
                 });
 
                 if (response.ok) {
-                    const responseData = await response.json();
+                    const responseData = await response.json(); // contains both api responses
                     setGPTResponse(responseData.Responses[0]);
                     setGeminiResponse(responseData.Responses[1]);
                 } else {
@@ -191,7 +188,7 @@ function PromptForm({ onSignOut }) {
 
    const fetchReport = useCallback(async () => {
     if(encode(prompt).length >= 100000) {
-        toast({
+        toast({ // we defined a maximum length of 100000 tokens, this cannot be exceeded or it will crash the api's
             title: "Prompt Too Long!",
             description: "The prompt is too long. The maximum number of tokens supported is 100000, but your submitted prompt was " + encode(prompt).length + ". Please try again with a shorter prompt.",
             status: "error",
@@ -199,7 +196,7 @@ function PromptForm({ onSignOut }) {
             duration: 5000,
             isClosable: true,
         });
-    } else if(encode(prompt).length === 0) {
+    } else if(encode(prompt).length === 0) { // the prompt needs to be sent with at least one character
         toast({
             title: "No prompt sent!",
             description: "You must have forgotten to send a prompt!",
@@ -209,7 +206,7 @@ function PromptForm({ onSignOut }) {
             isClosable: true,
         });
     } else if(encode(submission).length === 0) {
-        toast({
+        toast({ // alert to notify a submission was not sent
             title: "No submission sent!",
             description: "You must have forgotten to enter a submission!",
             status: "error",
@@ -221,14 +218,12 @@ function PromptForm({ onSignOut }) {
         setIsLoading(true);
 
         try {
-            //const response = await fetch("http://localhost:8000/generate_report/", {
-            const response = await fetch("https://snitch-ai-fastapi.onrender.com/generate_report/", {
-                
+            const response = await fetch("http://localhost:8000/generate_report/", {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
+                body: JSON.stringify({ // need to use JSON stringify for FastAPI
                     prompt: prompt,
                     submission: submission
                 })
@@ -265,7 +260,7 @@ function PromptForm({ onSignOut }) {
                     await setDoc(docRef, newReport);
  
                     console.log('New report with custom ID:', customDocumentId);
-                    toast({
+                    toast({ // alert the user the report has been made (but at the bottom to not congest top area popups)
                         title: "New Report made!",
                         description: "Your new report has been created: " + customDocumentId,
                         status: "success",
@@ -293,7 +288,7 @@ function PromptForm({ onSignOut }) {
    }, [prompt, submission, toast]);
 
    // Define a map of file types to parsing functions
-   const fileTypeParsers = {
+   const fileTypeParsers = { // source of mime mapping idea: https://github.com/sindresorhus/file-type
        'application/pdf': parsePDF,
        'pdf': parsePDF,
        '.pdf': parsePDF
@@ -303,19 +298,26 @@ function PromptForm({ onSignOut }) {
 
    // Function to parse text from files
    async function parseTextFromFile(file) {
-       const parser = fileTypeParsers[file.type];
+       const parser = fileTypeParsers[file.type]; // use the custom mappings to parse the files
        if (parser) {
-           return await parser(file);
+        return await parser(file);
        } else {
-           throw new Error('Unsupported file type.');
-       }
+        toast({ // notify the user that the file type was not supported
+            title: "We cannot parse your file!",
+            description: "It seems you have uploaded an unsupported file type (we accept pdf and txt)!",
+            status: "error",
+            position: "top", // position at the top of the screen
+            duration: 10000,
+            isClosable: true,
+        });
+       } throw new Error('Unsupported file type.'); // the uploaded file is not a supported file type
    }
 
-   function parsePDF(event) {
-       const file = event.target.files[0]
-       pdfToText(file)
-           .then(text => console.log(text))
-           .catch(error => console.error("Failed to extract text from pdf"))
+   function parsePDF(event) { 
+       const file = event.target.files[0] // define the file(s)
+       pdfToText(file) // used existing module to parse the file content
+           .then(text => console.log(text)) // if successful log this to console
+           .catch(error => console.error("Failed to extract text from pdf")) // otherwise report that it crashed
    }
 
    // Effect to fetch response when form is submitted
@@ -337,7 +339,7 @@ function PromptForm({ onSignOut }) {
        setFormSubmitted(true); // Set formSubmitted state to true when form is submitted
    };
 
-   const handleSignOut = async () => {
+   const handleSignOut = async () => { // used to sign the user out and redirect them to the login page
     const auth = getAuth()
        try {
            await signOut(auth);
@@ -348,9 +350,9 @@ function PromptForm({ onSignOut }) {
    };
 
     const handleReport = async () => {
-       if(encode(submission).length > 0 && encode(prompt).length > 0 ) {
+       if(encode(submission).length > 0 && encode(prompt).length > 0 ) { // the prompt and submission both need to have at least one character
         fetchReport(); // Call fetchReport without waiting for it to complete
-            toast({
+            toast({ // notify the user the report to generate the request was sent (any errors are handled by fetchReport)
                 title: "Report Request Sent!",
                 description: "It could take some time to generate your report, but when it is done, you will receive a notification on the bottom of the screen!",
                 status: "warning",
@@ -359,7 +361,7 @@ function PromptForm({ onSignOut }) {
                 isClosable: true,
             });
        } else {
-            toast({
+            toast({ // notify the user that the prompt and/or submission are missing (should not be allowed)
                 title: "Prompt and/or Submission are missing!",
                 description: "You must fill out both components of the form (prompt and submission) in order to generate a report!",
                 status: "error",
@@ -370,14 +372,14 @@ function PromptForm({ onSignOut }) {
        }
     }
 
-   const goToAccountHome = () => {
+   const goToAccountHome = () => { // navigation rules for pressing account home button
        navigate('/account-home');
    }
 
-   const goToHistory = () => {
+   const goToHistory = () => { // navigation rules for pressing reports button
        navigate('/report-history');
    }
-
+   // components for the prompt form, following our initial layout and chalk talk design
    return (
        <div>
            <Box

@@ -8,9 +8,11 @@ import { FaThumbsUp, FaThumbsDown, FaRobot } from 'react-icons/fa';
 import { useNavigate } from "react-router-dom";
 import ThemeToggleButton from "./ThemeToggleButton";
 
+// documentation used to interact with database: https://firebase.google.com/docs/firestore (the beginning of the official documentation)
+
 const ReportTable = () => {
   const [userReports, setUserReports] = useState([]);
-  const [displayModel, setDisplayModel] = useState('ChatGPT');
+  const [displayModel, setDisplayModel] = useState('ChatGPT'); // used to toggle report model metrics
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState(null); // State for storing user info
   const [feedbackSent, setFeedbackSent] = useState(false);
@@ -19,11 +21,11 @@ const ReportTable = () => {
   const [isOpen1, setIsOpen1] = React.useState(false);
   const [isOpen2, setIsOpen2] = React.useState(false);
   const [isOpen3, setIsOpen3] = React.useState(false);
-  const onClose1 = () => setIsOpen1(false);
+  const onClose1 = () => setIsOpen1(false); // these are used for modals
   const onClose2 = () => setIsOpen2(false);
   const onClose3 = () => setIsOpen3(false);
-  const [showDefinition, setShowDefinition] = useState(true);
-  const rowsPerPage = 10;
+  const [showDefinition, setShowDefinition] = useState(true); // used to determine whether modal definition needs to be shown
+  const rowsPerPage = 10; // defines the number of records in one page
   const auth = getAuth();
 
   useEffect(() => {
@@ -44,21 +46,21 @@ const ReportTable = () => {
     fetchUserReports();
   }, []);
 
-  const fetchUserReports = async () => {
+  const fetchUserReports = async () => { // used to retrieve all of the logged in user's reports
     const auth = getAuth();
     const user = auth.currentUser;
     if (user) {
       const db = getFirestore();
-      const reportsCollection = collection(db, "reports");
-      const userReportsQuery = query(reportsCollection, where("userId", "==", user.uid), orderBy("timestamp", "desc"));
-      const snapshot = await getDocs(userReportsQuery);
-      const userReports = snapshot.docs.map((doc) => doc.data());
+      const reportsCollection = collection(db, "reports"); // reference to the location in our database
+      const userReportsQuery = query(reportsCollection, where("userId", "==", user.uid), orderBy("timestamp", "desc")); // getting and ordering the reports by date
+      const snapshot = await getDocs(userReportsQuery); // snapshot contains all of the reports
+      const userReports = snapshot.docs.map((doc) => doc.data()); // takes the array of documents returned from a Firestore query and transforms it into an array of JavaScript objects
       setUserReports(userReports);
       setIsLoading(false);
     }
   };
 
-  const toggleDisplayModel = () => {
+  const toggleDisplayModel = () => { // toggle between chatgpt and gemini metric results
     setDisplayModel(displayModel === 'ChatGPT' ? 'Gemini' : 'ChatGPT');
   };
 
@@ -75,26 +77,26 @@ const ReportTable = () => {
     navigate('/prompt');
   };
 
-  const handleSignOut = async () => {
+  const handleSignOut = async () => { // handle the logout
     try {
       await signOut(auth);
-      window.location.href = '/';; // Navigate to the login route after successful sign-out
+      window.location.href = '/'; // Navigate to the login route after successful sign-out
     } catch (error) {
       console.error("Error signing out: ", error);
     }
   };
 
-  const handleFeedback = async (report, feedback) => {
+  const handleFeedback = async (report, feedback) => { // function for handling feedback (basically the user clicks thumbs up/down to label data and update training data)
     try {
-      const response = await fetch('http://localhost:8000/update_training_data/', {
+      const response = await fetch('http://localhost:8000/update_training_data/', { // make call to FastAPI endpoint function responsible for updating training data
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           submission: report.submission,
-          feedback:
-            (report.result === 'AI-Generated' && feedback === 'correct') ||
+          feedback: // values of label depending on prediction and result
+            (report.result === 'AI-Generated' && feedback === 'correct') || 
             (report.result === 'Human-Generated' && feedback === 'incorrect')
               ? 1
               : 0,
@@ -104,7 +106,7 @@ const ReportTable = () => {
       if (response.ok) {
         console.log('Training data updated successfully');
 
-        async function getReportByID(reportId) {
+        async function getReportByID(reportId) { // repsonsible for getting all of the reports (used to update a single report)
           try {
             const auth = getAuth();
             const user = auth.currentUser;
@@ -113,23 +115,23 @@ const ReportTable = () => {
               const db = getFirestore();
               const reportsCollection = collection(db, "reports");
 
-              // Query to get the specific report by ID and user
-              const reportQuery = query(
+              // Query to get the specific report by ID and user (this reportQuery const was troubleshooted and worked out by chatGPT because we were having trouble with it)
+              const reportQuery = query( // start of chatgpt produced code
                 reportsCollection,
                 where("userId", "==", user.uid),
                 where("__name__", "==", reportId)
-              );
+              ); // end of chatgpt produced code
 
               const querySnapshot = await getDocs(reportQuery);
 
-              if (!querySnapshot.empty) {
+              if (!querySnapshot.empty) { // if there are results, we need to check one for the specific id
                 const reportDoc = querySnapshot.docs[0];
                 const reportRef = doc(db, "reports", reportDoc.id);
-                await updateDoc(reportRef, {
+                await updateDoc(reportRef, { // if we find it, update the feedback to true so the robot icon is shown (no more labeling for that specific report)
                   feedback: true
                 });
                 return reportDoc.data();
-              } else {
+              } else { // report was not found by id
                 console.log("No report found with the provided ID", reportId);
                 return null;
               }
@@ -147,7 +149,7 @@ const ReportTable = () => {
         const auth = getAuth();
         const user = auth.currentUser;
 
-        if (user) {
+        if (user) { // need to make sure the user is logged in and authenticated before we try to get report data
           getReportByID(reportId)
             .then((report) => {
               if (report) {
@@ -170,7 +172,7 @@ const ReportTable = () => {
     }
   };
 
-  const renderReportData = (report) => {
+  const renderReportData = (report) => { // responsible for iteratively producing the rows of the report data
     const metricData = report.reportData[displayModel];
     const mlData = report.mlData;
     return (
@@ -223,18 +225,18 @@ const ReportTable = () => {
     );
   };
 
-  const totalPages = Math.ceil(userReports.length / rowsPerPage);
+  const totalPages = Math.ceil(userReports.length / rowsPerPage); // calculation to decide the total number of pages based on the total report count
 
-  const handlePageChange = (pageNumber) => {
+  const handlePageChange = (pageNumber) => { // used to define how the page should be updated when the user goes to the next report page
     setCurrentPage(pageNumber);
   };
 
-  const getReportsForCurrentPage = () => {
+  const getReportsForCurrentPage = () => { // responsible for actually showing the subset of reports (using slicing): https://www.w3schools.com/jsref/jsref_slice_array.asp
     const startIndex = (currentPage - 1) * rowsPerPage;
     const endIndex = startIndex + rowsPerPage;
     return userReports.slice(startIndex, endIndex);
   };
-
+  // return the components responsible for building the form (contains table of reports and modals)
   return (
     <Box>
       <Box marginTop="4" display="flex" justifyContent="center">

@@ -21,7 +21,7 @@ const AccountHome = () => {
   const user = auth.currentUser;
 
   const handleCreateModelClick = () => {
-    toast({
+    toast({ // we are not planning on implementing the custom model just yet, so the user needs to be notified (we want them to get excited about the possibility though)
       title: "New Feature Coming Soon!",
       description: "In future version of SNITCH, users will be able to create their own ML Models based on their own training data!",
       status: "warning", // 'warning' for a amber? color
@@ -65,7 +65,7 @@ const AccountHome = () => {
   };
 
   const handleGoToPrompt = () => {
-    navigate('/prompt'); // Assuming '/prompt' is the path for your prompt page
+    navigate('/prompt'); 
   };
 
   const handleSubmit = async () => {
@@ -90,14 +90,14 @@ const AccountHome = () => {
         // Add other fields as necessary
       });
 
-      toast({
+      toast({ // display popup to user that account was successfully updated
         title: "Account updated",
         description: "Your account details have been successfully updated.",
         status: "success",
         duration: 9000,
         isClosable: true,
       });
-    } catch (error) {
+    } catch (error) { // if there was an error in updating the account, notify the user
       toast({
         title: "Error updating account",
         description: error.message,
@@ -107,7 +107,7 @@ const AccountHome = () => {
       });
     }
   };
-
+  // components responsible for rendering the different routing buttons (basically alternative to navbar)
   return (
     <VStack height="75vh" alignItems="center" justifyContent="center">
       <ButtonGroup spacing={4} mt={1} justifyContent="center" size="md">
@@ -128,7 +128,7 @@ const AccountHome = () => {
   
     <ThemeToggleButton />
     
-  
+    {/* components responsible for the account dashboard form section */}
     <VStack spacing={4}>
       <Text fontSize="xl">{`Welcome to Your Account Dashboard, ${userDetails.email}`}</Text>
       <FormControl id="displayName">
