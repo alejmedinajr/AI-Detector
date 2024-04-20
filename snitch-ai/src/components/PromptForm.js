@@ -138,7 +138,7 @@ function PromptForm({ onSignOut }) {
                 duration: 5000,
                 isClosable: true,
             });
-        } else if(encode(prompt).length == 0) {
+        } else if(encode(prompt).length === 0) {
             toast({
                 title: "No prompt sent!",
                 description: "You must have forgotten to send a prompt!",
@@ -187,7 +187,7 @@ function PromptForm({ onSignOut }) {
             duration: 5000,
             isClosable: true,
         });
-    } else if(encode(prompt).length == 0) {
+    } else if(encode(prompt).length === 0) {
         toast({
             title: "No prompt sent!",
             description: "You must have forgotten to send a prompt!",
@@ -196,7 +196,7 @@ function PromptForm({ onSignOut }) {
             duration: 5000,
             isClosable: true,
         });
-    } else if(encode(submission).length == 0) {
+    } else if(encode(submission).length === 0) {
         toast({
             title: "No submission sent!",
             description: "You must have forgotten to enter a submission!",
@@ -250,10 +250,19 @@ function PromptForm({ onSignOut }) {
                     // Set the document data with the custom document ID
                     await setDoc(docRef, newReport);
  
-                    // You can now access the custom document ID
                     console.log('New report with custom ID:', customDocumentId);
+                    toast({
+                        title: "New Report made!",
+                        description: "Your new report has been created: " + customDocumentId,
+                        status: "success",
+                        position: "bottom", // position at the bottom of the screen
+                        duration: 10000,
+                        isClosable: true,
+                    });
+
                 }
- 
+                
+
                 console.log(responseData);
             } else {
                 setReportStatus('Failed to generate report'); // Update report status
@@ -329,7 +338,7 @@ function PromptForm({ onSignOut }) {
         fetchReport(); // Call fetchReport without waiting for it to complete
             toast({
                 title: "Report Request Sent!",
-                description: "It could take some time to generate your report, please wait for an email confirmation to confirm your report has been created. When you receive one, you can view your report in your report page!",
+                description: "It could take some time to generate your report, but when it is done, you will receive a notification on the bottom of the screen!",
                 status: "warning",
                 position: "top", // position at the top of the screen
                 duration: 10000,
