@@ -138,6 +138,15 @@ function PromptForm({ onSignOut }) {
                 duration: 5000,
                 isClosable: true,
             });
+        } else if(encode(prompt).length == 0) {
+            toast({
+                title: "No prompt sent!",
+                description: "You must have forgotten to send a prompt!",
+                status: "error",
+                position: "top", // position at the top of the screen
+                duration: 5000,
+                isClosable: true,
+            });
         } else {
             setIsLoading(true);
             try {
@@ -173,6 +182,24 @@ function PromptForm({ onSignOut }) {
         toast({
             title: "Prompt Too Long!",
             description: "The prompt is too long. The maximum number of tokens supported is 100000, but your submitted prompt was " + encode(prompt).length + ". Please try again with a shorter prompt.",
+            status: "error",
+            position: "top", // position at the top of the screen
+            duration: 5000,
+            isClosable: true,
+        });
+    } else if(encode(prompt).length == 0) {
+        toast({
+            title: "No prompt sent!",
+            description: "You must have forgotten to send a prompt!",
+            status: "error",
+            position: "top", // position at the top of the screen
+            duration: 5000,
+            isClosable: true,
+        });
+    } else if(encode(submission).length == 0) {
+        toast({
+            title: "No submission sent!",
+            description: "You must have forgotten to enter a submission!",
             status: "error",
             position: "top", // position at the top of the screen
             duration: 5000,
@@ -297,10 +324,28 @@ function PromptForm({ onSignOut }) {
        }
    };
 
-   const handleReport = async () => {
-       fetchReport(); // Call fetchReport without waiting for it to complete
-       navigate('/account-home'); // Navigate to the account home page immediately
-   }
+    const handleReport = async () => {
+       if(encode(submission).length > 0 && encode(prompt).length > 0 ) {
+        fetchReport(); // Call fetchReport without waiting for it to complete
+            toast({
+                title: "Report Request Sent!",
+                description: "It could take some time to generate your report, please wait for an email confirmation to confirm your report has been created. When you receive one, you can view your report in your report page!",
+                status: "warning",
+                position: "top", // position at the top of the screen
+                duration: 10000,
+                isClosable: true,
+            });
+       } else {
+            toast({
+                title: "Prompt and/or Submission are missing!",
+                description: "You must fill out both components of the form (prompt and submission) in order to generate a report!",
+                status: "error",
+                position: "top", // position at the top of the screen
+                duration: 10000,
+                isClosable: true,
+            });
+       }
+    }
 
    const goToAccountHome = () => {
        navigate('/account-home');
