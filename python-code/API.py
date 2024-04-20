@@ -3,7 +3,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
 from openai import OpenAI
 from pydantic import BaseModel
-#import config
 import os
 import google.generativeai as genai
 import parsing
