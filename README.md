@@ -1,7 +1,7 @@
-# AI-Detector (name work in progress)
-This repository is dedicated to the **(name of project)** capstone project for the Spring 2024 graduating class at Southwestern University.
+# SNITCH(Southwestern’s New Innovation to Cultivate Honor)
+This repository is dedicated to the SNITCH capstone project for the Spring 2024 graduating class at Southwestern University.
 
-# Uses (anticipated)
+# Uses 
 This tool is meant to be useful in detecting the use of AI on homework/project submissions. If you are a student, you will be able to view how much your work matches the output of different AI models. To avoid the temptation of using any AI generated work, the student view is limited to only being able to see a match percentage. For admins (most likely teachers or professors), a different view will be available, where AI generated output will be avaialable to see and compare to the submission (for different AI models). 
 
 # Securely Storing Your API Keys
@@ -24,8 +24,8 @@ If there are more packages that need to be installed, you will likely get an err
 
 # Instructions/Useful Commands
 This project currently has two components, the React App that serves as what the user will actually see/use, and the FastAPI, which acts as the connection point between several of our APIs and React app. 
-1. React App: This application runs on the localhost, and in order to run it, you need to be in the project folder called <b>main-react-app</b>. You can easily do this using the following commands: `cd main-react-app` followed by `npm start`. The first command changes the directory to the react app directory, and the second command is used to run the application. Once this runs, a window should pop up, allowing you to see the main page of the react app.
-2. FastAPI: This API also runs on the localhost. In order to run it, you need to have a seperate terminal that is in the main project folder (not the react folder, but the actual main folder for the project). Once you are in this directory, you can run `python3 -m uvicorn API:app --reload`. This command is what is used to start the API. If you are successful in running this command, then you should see a link to where the API can be found in the terminal. You can copy and paste this link into a browser in order to mess around/test API functions that are found in `API.py`. This is not necessary to open if you are focusing on the React app. You simply need to have this running in order for the React app to send data to the various APIs we are using (i.e. ChatGPT and Gemini).
+1. React App: This application runs on the localhost, and in order to run it, you need to be in the project folder called <b>main-react-app</b>. You can easily do this using the following commands: `cd snitch-ai` followed by `npm start`. The first command changes the directory to the react app directory, and the second command is used to run the application. Once this runs, a window should pop up, allowing you to see the main page of the react app.
+2. FastAPI: This API also runs on the localhost. In order to run it, you need to have a seperate terminal that is in the `cd python-code` . Once you are in this directory, you can run `python3 -m uvicorn API:app --reload`. This command is what is used to start the API. If you are successful in running this command, then you should see a link to where the API can be found in the terminal. You can copy and paste this link into a browser in order to mess around/test API functions that are found in `API.py`. This is not necessary to open if you are focusing on the React app. You simply need to have this running in order for the React app to send data to the various APIs we are using (i.e. ChatGPT and Gemini).
 <BR>
 <b>Note: You must have BOTH of these running at the same time in order to successfully make queries to the AI API's</b>  
 
