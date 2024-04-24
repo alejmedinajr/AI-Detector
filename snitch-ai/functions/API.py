@@ -222,5 +222,5 @@ def train_model():
     models.save_model(model, vectorizer, model_path, vectorizer_path) # the best model is always saved
 
 # UNCOMMENT THIS FOR DOCKER OR OTHER HOSTING OF OUR FASTAPI   
-#if __name__ == "__main__":
-#    uvicorn.run("API:app", host="0.0.0.0", port=8000, reload=True)
+if __name__ == "__main__":
+   uvicorn.run("API:app", host="0.0.0.0", port=8000, reload=True)
