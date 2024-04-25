@@ -141,12 +141,17 @@ export const AuthenticationForm = (props) => {
       boxShadow="lg"
       bg={useColorModeValue('gray.50', 'gray.700')}
     >
+      <Heading as="h1" size="2xl" textAlign="center" mb={6}>
+        SNITCH
+      </Heading>
+
       {error && (
         <Alert status="error" borderRadius={5}>
           <AlertIcon />
           {error}
         </Alert>
       )}
+      
       <Heading mb={6}>{isLogin ? 'Login' : 'Sign Up'}</Heading>
       <VStack spacing={4} as="form" onSubmit={handleSubmit}>
         {!isLogin && (
@@ -274,9 +279,8 @@ export const AuthenticationForm = (props) => {
           src={pic}
           alt="Team's 3rd place finish"
           boxSize="300px"
-          objectFit="cover"
-          width="100%"  // Ensures the image takes the full width available
-          height="auto"  // Maintains aspect ratio
+          objectFit="contain"  // Ensures the full image is visible
+          width="100%"
         />
       </Box>
     </Box>
