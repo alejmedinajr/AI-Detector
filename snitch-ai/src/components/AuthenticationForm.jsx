@@ -1,17 +1,28 @@
 import React, { useState } from 'react';
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth";
+import {
+  getAuth,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  sendPasswordResetEmail,
+} from "firebase/auth";
 import { getDatabase, ref, set } from "firebase/database";
 import app from '../firebase.js'; 
-import { Select, Box, FormControl, FormLabel, Input, Button, VStack, Heading, Alert, AlertIcon, useColorModeValue } from '@chakra-ui/react';
-import { useNavigate } from 'react-router-dom'; // Only if using React Router
-import { useToast } from '@chakra-ui/react';
-
-// References:
-// https://v2.chakra-ui.com/docs/components
-// https://firebase.google.com/docs/auth
-// https://reactrouter.com/en/main/hooks/use-navigate
-// https://v2.chakra-ui.com/docs/components/toast
-
+import {
+  Select,
+  Text,
+  Box,
+  FormControl,
+  FormLabel,
+  Input,
+  Button,
+  VStack,
+  Heading,
+  Alert,
+  AlertIcon,
+  useColorModeValue,
+  useToast,
+} from '@chakra-ui/react';
+import { useNavigate } from 'react-router-dom';
 
 export const AuthenticationForm = (props) => {
   const [userCredentials, setUserCredentials] = useState({
@@ -20,8 +31,9 @@ export const AuthenticationForm = (props) => {
     first_name: '', 
     last_name: '', 
     role: '',
-    university: ''
+    university: '',
   });
+
   const [resetEmail, setResetEmail] = useState('');
   const [isLogin, setIsLogin] = useState(true);
   const [error, setError] = useState('');
@@ -29,13 +41,14 @@ export const AuthenticationForm = (props) => {
 
   const auth = getAuth(app);
   const db = getDatabase(app);
-
   const toast = useToast();
   const navigate = useNavigate(); 
 
-
   function handleCredentials(event) {
-    setUserCredentials({...userCredentials, [event.target.name]: event.target.value});
+    setUserCredentials({
+      ...userCredentials,
+      [event.target.name]: event.target.value,
+    });
   }
 
   function resetPassword(email) {
@@ -45,11 +58,9 @@ export const AuthenticationForm = (props) => {
     }
     return sendPasswordResetEmail(auth, email)
       .then(() => {
-        // display a nicer looking message for the user (popup but not the basic alert)
         toast({
           title: "Password reset email sent.",
           description: "Check your email to reset your password!",
-          position: "top", // position at the top of the screen
           status: "success",
           duration: 9000,
           isClosable: true,
@@ -57,23 +68,18 @@ export const AuthenticationForm = (props) => {
         setShowReset(false);
         setResetEmail('');
       })
-      .catch((error) => { // if there was an error, display this error to the user
+      .catch((error) => {
         console.error(error.message);
         toast({
           title: "Email does not exist.",
-          description: "Double check to make sure your email is correct!",
-          status: "failure",
-          position: "top", // position at the top of the screen
+          description: "Double-check to ensure your email is correct!",
+          status: "error",
           duration: 9000,
           isClosable: true,
         });
       });
   }
 
-  {/* This function is focuses on handling the submit for the login/signup form. 
-      It only works if the user enters a valid email/password (using firebase authentication).
-      If the user chooses to create a new account, then the create account predefined function is used.
-  */}
   async function handleSubmit(event) {
     event.preventDefault();
     if (isLogin) {
@@ -81,7 +87,7 @@ export const AuthenticationForm = (props) => {
         .then((userCredential) => {
           console.log(userCredential.user);
           props.onAuthenticate(true);
-          navigate.push('/login'); // Redirect to login page
+          navigate('/login'); // Redirect to login page
         })
         .catch((error) => {
           console.error(error.message);
@@ -91,7 +97,7 @@ export const AuthenticationForm = (props) => {
       createUserWithEmailAndPassword(auth, userCredentials.email, userCredentials.password)
         .then((userCredential) => {
           const user = userCredential.user;
-          const userRef = ref(db, 'users/' + user.uid); // need a reference to the user object
+          const userRef = ref(db, 'users/' + user.uid);
           return set(userRef, {
             email: userCredentials.email,
             role: userCredentials.role,
@@ -99,8 +105,7 @@ export const AuthenticationForm = (props) => {
             last_name: userCredentials.last_name,
           });
         })
-        .then(() => { // alert to the console that the user was added to the realtime database
-          console.log("User profile created in Realtime Database");
+        .then(() => {
           toast({
             title: "Account created.",
             description: "Your account was successfully created!",
@@ -108,9 +113,7 @@ export const AuthenticationForm = (props) => {
             duration: 9000,
             isClosable: true,
           });
-          setIsLogin(true); // Switch to login form
-          // Optionally, you can redirect to login page as well:
-          // history.push('/login');
+          setIsLogin(true);
         })
         .catch((error) => {
           console.error("Error in creating user profile:", error);
@@ -120,38 +123,74 @@ export const AuthenticationForm = (props) => {
             description: error.message,
             status: "error",
             duration: 9000,
-            isClosable: true,
           });
         });
     }
   }
-  
 
   return (
-    <Box p={5} my={10} mx="auto" maxW="md" borderWidth="1px" borderRadius="lg" boxShadow="lg" bg={useColorModeValue('gray.50', 'gray.700')}>
-      {error && <Alert status="error" borderRadius={5}>
-        <AlertIcon />
-        {error}
-      </Alert>}
+    <Box
+      p={5}
+      my={10}
+      mx="auto"
+      maxW="md"
+      borderWidth="1px"
+      borderRadius="lg"
+      boxShadow="lg"
+      bg={useColorModeValue('gray.50', 'gray.700')}
+    >
+      {error && (
+        <Alert status="error" borderRadius={5}>
+          <AlertIcon />
+          {error}
+        </Alert>
+      )}
       <Heading mb={6}>{isLogin ? 'Login' : 'Sign Up'}</Heading>
       <VStack spacing={4} as="form" onSubmit={handleSubmit}>
         {!isLogin && (
           <>
             <FormControl isRequired>
               <FormLabel htmlFor="first_name">First Name</FormLabel>
-              <Input id="first_name" type="text" placeholder='Your First Name' name='first_name' value={userCredentials.first_name} onChange={handleCredentials} />
+              <Input
+                id="first_name"
+                type="text"
+                placeholder="Your First Name"
+                name="first_name"
+                value={userCredentials.first_name}
+                onChange={handleCredentials}
+              />
             </FormControl>
             <FormControl isRequired>
               <FormLabel htmlFor="last_name">Last Name</FormLabel>
-              <Input id="last_name" type="text" placeholder='Your Last Name' name='last_name' value={userCredentials.last_name} onChange={handleCredentials} />
+              <Input
+                id="last_name"
+                type="text"
+                placeholder="Your Last Name"
+                name="last_name"
+                value={userCredentials.last_name}
+                onChange={handleCredentials}
+              />
             </FormControl>
             <FormControl isRequired>
               <FormLabel htmlFor="university">University</FormLabel>
-              <Input id="university" type="text" placeholder='Your University' name='university' value={userCredentials.university} onChange={handleCredentials} />
+              <Input
+                id="university"
+                type="text"
+                placeholder="Your University"
+                name="university"
+                value={userCredentials.university}
+                onChange={handleCredentials}
+              />
             </FormControl>
             <FormControl isRequired>
               <FormLabel htmlFor="role">Role</FormLabel>
-              <Select id="role" name="role" placeholder="Select your role" value={userCredentials.role} onChange={handleCredentials}>
+              <Select
+                id="role"
+                name="role"
+                placeholder="Select your role"
+                value={userCredentials.role}
+                onChange={handleCredentials}
+              >
                 <option value="student">Student</option>
                 <option value="professor">Professor</option>
               </Select>
@@ -160,37 +199,73 @@ export const AuthenticationForm = (props) => {
         )}
         <FormControl isRequired>
           <FormLabel htmlFor="email">Email</FormLabel>
-          <Input id="email" type="email" placeholder='Email' name='email' value={userCredentials.email} onChange={handleCredentials}/>
+          <Input
+            id="email"
+            type="email"
+            placeholder="Email"
+            name="email"
+            value={userCredentials.email}
+            onChange={handleCredentials}
+          />
         </FormControl>
         <FormControl isRequired>
           <FormLabel htmlFor="password">Password</FormLabel>
-          <Input id="password" type="password" placeholder='Password' name='password' value={userCredentials.password} onChange={handleCredentials}/>
+          <Input
+            id="password"
+            type="password"
+            placeholder="Password"
+            name="password"
+            value={userCredentials.password}
+            onChange={handleCredentials}
+          />
         </FormControl>
         <Button colorScheme="blue" mt={4} width="full" type="submit">
           {isLogin ? 'Log In' : 'Sign Up'}
         </Button>
       </VStack>
-      <Button variant="ghost" mt={4} onClick={() => setIsLogin(!isLogin)}>
+      <Button
+        variant="ghost"
+        mt={4}
+        onClick={() => setIsLogin(!isLogin)}
+      >
         {isLogin ? 'Create an Account' : 'Back to Login'}
       </Button>
       {isLogin && (
         <>
-          <Button variant="ghost" mt={4} onClick={() => setShowReset(!showReset)}>
+          <Button
+            variant="ghost"
+            mt={4}
+            onClick={() => setShowReset(!showReset)}
+          >
             Forgot Password?
           </Button>
           {showReset && (
             <Box>
-              <Input 
-                placeholder="Enter your email to reset password" 
+              <Input
+                placeholder="Enter your email to reset password"
                 mt={2}
-                value={resetEmail} 
+                value={resetEmail}
                 onChange={(e) => setResetEmail(e.target.value)}
               />
-              <Button mt={2} onClick={() => resetPassword(resetEmail)}>Send Reset Email</Button>
+              <Button mt={2} onClick={() => resetPassword(resetEmail)}>
+                Send Reset Email
+              </Button>
             </Box>
           )}
         </>
       )}
+      <Box mt={10} p={4} borderWidth={1} borderRadius="lg" boxShadow="lg" bg={useColorModeValue('gray.50', 'gray.700')}>
+        <Text fontWeight="bold">About the Project</Text>
+        <Text>
+          This project aims to detect AI-generated content in student submissions. The goal is to maintain academic integrity by providing a tool for educators and students to gauge authenticity.
+        </Text>
+        <Text>
+          This tool uses Firebase for authentication and data storage, along with Chakra UI for a clean user interface. The form allows users to sign up, log in, and reset passwords.
+        </Text>
+        <Text>
+          Data gathered helps analyze trends in AI-generated content and supports educators in maintaining academic standards.
+        </Text>
+      </Box>
     </Box>
   );
 };
