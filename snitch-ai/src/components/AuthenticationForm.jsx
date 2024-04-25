@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import pic from '../images/IMG_5744.jpg'
 import {
   getAuth,
   createUserWithEmailAndPassword,
@@ -9,6 +10,7 @@ import { getDatabase, ref, set } from "firebase/database";
 import app from '../firebase.js'; 
 import {
   Select,
+  Image,
   Text,
   Box,
   FormControl,
@@ -265,6 +267,17 @@ export const AuthenticationForm = (props) => {
         <Text>
           Data gathered helps analyze trends in AI-generated content and supports educators in maintaining academic standards.
         </Text>
+        <Text>
+          This project including Caleb Highsmith, Alejandro Medina, Travis Rafferty, and Noah Zamarripa, secured 3rd place at the 34th Annual Conference of the Consortium for Computing Sciences in Colleges: South Central Region.
+        </Text>
+        <Image
+          src={pic}
+          alt="Team's 3rd place finish"
+          boxSize="300px"
+          objectFit="cover"
+          width="100%"  // Ensures the image takes the full width available
+          height="auto"  // Maintains aspect ratio
+        />
       </Box>
     </Box>
   );
