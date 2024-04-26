@@ -88,7 +88,7 @@ const ReportTable = () => {
 
   const handleFeedback = async (report, feedback) => { // function for handling feedback (basically the user clicks thumbs up/down to label data and update training data)
     try {
-      const response = await fetch('http://localhost:8000/update_training_data/', { // make call to FastAPI endpoint function responsible for updating training data
+      const response = await fetch('https://fastapi-cloud-function-xazwabprtq-uc.a.run.app/update_training_data/', { // make call to FastAPI endpoint function responsible for updating training data
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

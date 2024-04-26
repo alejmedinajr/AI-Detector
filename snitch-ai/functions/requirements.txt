@@ -1,3 +1,4 @@
+firebase_functions~=0.1.0
 fastapi
 firebase_admin
 fuzzywuzzy
@@ -17,3 +18,4 @@ python-multipart
 spacy
 scikit_learn
 uvicorn
+requests==2.26.0
