@@ -159,7 +159,7 @@ function PromptForm({ onSignOut }) {
         } else {
             setIsLoading(true);
             try {
-                const response = await fetch("http://localhost:8000/form_submission/", { // make call to fastAPI endpoint
+                const response = await fetch("https://fastapi-cloud-function-xazwabprtq-uc.a.run.app/form_submission/", { // make call to fastAPI endpoint
                     method: "POST",
                     headers: {
                         'Content-Type': 'application/json'
@@ -218,7 +218,7 @@ function PromptForm({ onSignOut }) {
         setIsLoading(true);
 
         try {
-            const response = await fetch("http://localhost:8000/generate_report/", {
+            const response = await fetch("https://fastapi-cloud-function-xazwabprtq-uc.a.run.app/generate_report/", {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json'
