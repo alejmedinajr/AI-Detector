@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import pic from '../images/IMG_5744.jpg'
 import {
   getAuth,
   createUserWithEmailAndPassword,
@@ -10,8 +9,6 @@ import { getDatabase, ref, set } from "firebase/database";
 import app from '../firebase.js'; 
 import {
   Select,
-  Image,
-  Text,
   Box,
   FormControl,
   FormLabel,
@@ -35,7 +32,6 @@ export const AuthenticationForm = (props) => {
     role: '',
     university: '',
   });
-
   const [resetEmail, setResetEmail] = useState('');
   const [isLogin, setIsLogin] = useState(true);
   const [error, setError] = useState('');
@@ -58,7 +54,7 @@ export const AuthenticationForm = (props) => {
       alert("Please enter an email address.");
       return;
     }
-    return sendPasswordResetEmail(auth, email)
+    sendPasswordResetEmail(auth, email)
       .then(() => {
         toast({
           title: "Password reset email sent.",
@@ -87,7 +83,6 @@ export const AuthenticationForm = (props) => {
     if (isLogin) {
       signInWithEmailAndPassword(auth, userCredentials.email, userCredentials.password)
         .then((userCredential) => {
-          console.log(userCredential.user);
           props.onAuthenticate(true);
           navigate('/login'); // Redirect to login page
         })
@@ -100,14 +95,12 @@ export const AuthenticationForm = (props) => {
         .then((userCredential) => {
           const user = userCredential.user;
           const userRef = ref(db, 'users/' + user.uid);
-          return set(userRef, {
+          set(userRef, {
             email: userCredentials.email,
             role: userCredentials.role,
             first_name: userCredentials.first_name,
             last_name: userCredentials.last_name,
           });
-        })
-        .then(() => {
           toast({
             title: "Account created.",
             description: "Your account was successfully created!",
@@ -151,7 +144,6 @@ export const AuthenticationForm = (props) => {
           {error}
         </Alert>
       )}
-      
       <Heading mb={6}>{isLogin ? 'Login' : 'Sign Up'}</Heading>
       <VStack spacing={4} as="form" onSubmit={handleSubmit}>
         {!isLogin && (
@@ -261,28 +253,12 @@ export const AuthenticationForm = (props) => {
           )}
         </>
       )}
-      <Box mt={10} p={4} borderWidth={1} borderRadius="lg" boxShadow="lg" bg={useColorModeValue('gray.50', 'gray.700')}>
-        <Text fontWeight="bold">About the Project</Text>
-        <Text>
-          This project aims to detect AI-generated content in student submissions. The goal is to maintain academic integrity by providing a tool for educators and students to gauge authenticity.
-        </Text>
-        <Text>
-          This tool uses Firebase for authentication and data storage, along with Chakra UI for a clean user interface. The form allows users to sign up, log in, and reset passwords.
-        </Text>
-        <Text>
-          Data gathered helps analyze trends in AI-generated content and supports educators in maintaining academic standards.
-        </Text>
-        <Text>
-          This project including Caleb Highsmith, Alejandro Medina, Travis Rafferty, and Noah Zamarripa, secured 3rd place at the 34th Annual Conference of the Consortium for Computing Sciences in Colleges: South Central Region.
-        </Text>
-        <Image
-          src={pic}
-          alt="Team's 3rd place finish"
-          boxSize="300px"
-          objectFit="contain"  // Ensures the full image is visible
-          width="100%"
-        />
+      <Button colorScheme="teal" mt={4} onClick={() => navigate('/aboutpage')}>
+    About Project
+  </Button>
+  <Button colorScheme="teal" mt={4} ml={2} onClick={() => navigate('/FAQ')}>
+    FAQ
+  </Button>
       </Box>
-    </Box>
   );
 };
