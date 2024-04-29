@@ -17,6 +17,8 @@ For this project, multiple python packages will need to be installed. To install
 You will also need to have <B>npm</B> installed to run the react app. After that `cd snitch-ai` and run this command `npm install` to get all of the node modules needed to run the project.
 <BR>
 If there are more packages that need to be installed, you will likely get an error saying that *x package could not be found*. This means you just need to pip install that package. In the future, we will incorporate a requirements file that can be run instead in order to install all necessary packages. 
+<BR>
+Finally there are two config files that need to be generated with relevant API keys. One needs to be created in the <b>snitch-ai</b> directory and it needs to be titled `config.py`. Keys for this file can be found in config google doc that in the shared google drive. The second needs to be created in the <b>python-code</b> directory and also needs to be titled `config.py`. For simplicity, keys for both of these files are the same and can be found in the config google doc in the shared drive.
 
 # Instructions/Useful Commands
 This project currently has two components, the React App that serves as what the user will actually see/use, and the FastAPI, which acts as the connection point between several of our APIs and React app. 
