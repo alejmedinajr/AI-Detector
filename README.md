@@ -1,4 +1,4 @@
-# SNITCH(Southwestern’s New Innovation to Cultivate Honor)
+# SNITCH (Southwestern’s New Innovation to Cultivate Honor)
 This repository is dedicated to the SNITCH capstone project for the Spring 2024 graduating class at Southwestern University.
 
 # Uses 
@@ -12,19 +12,15 @@ Example of how an API key can be stored in a variable in the `config.py` file: `
 <B>*Note: This is a fake API key</B>
 
 # Requirements
-For this project, the following packages need to be installed:
-* google-generativeai
-* python-multipart
-* openai
-* fastapi
-* uvicorn
-* nodejs
+For this project, multiple python packages will need to be installed. To install them `cd snitch-ai` and run this command `pip install -r requirements.txt`
+<BR>
+You will also need to have <B>npm</B> installed to run the react app. After that `cd snitch-ai` and run this command `npm install` to get all of the node modules needed to run the project.
 <BR>
 If there are more packages that need to be installed, you will likely get an error saying that *x package could not be found*. This means you just need to pip install that package. In the future, we will incorporate a requirements file that can be run instead in order to install all necessary packages. 
 
 # Instructions/Useful Commands
 This project currently has two components, the React App that serves as what the user will actually see/use, and the FastAPI, which acts as the connection point between several of our APIs and React app. 
-1. React App: This application runs on the localhost, and in order to run it, you need to be in the project folder called <b>main-react-app</b>. You can easily do this using the following commands: `cd snitch-ai` followed by `npm start`. The first command changes the directory to the react app directory, and the second command is used to run the application. Once this runs, a window should pop up, allowing you to see the main page of the react app.
+1. React App: This application runs on the localhost, and in order to run it, you need to be in the project folder called <b>snitch-ai</b>. You can easily do this using the following commands: `cd snitch-ai` followed by `npm start`. The first command changes the directory to the react app directory, and the second command is used to run the application. Once this runs, a window should pop up, allowing you to see the main page of the react app.
 2. FastAPI: This API also runs on the localhost. In order to run it, you need to have a seperate terminal that is in the `cd python-code` . Once you are in this directory, you can run `python3 -m uvicorn API:app --reload`. This command is what is used to start the API. If you are successful in running this command, then you should see a link to where the API can be found in the terminal. You can copy and paste this link into a browser in order to mess around/test API functions that are found in `API.py`. This is not necessary to open if you are focusing on the React app. You simply need to have this running in order for the React app to send data to the various APIs we are using (i.e. ChatGPT and Gemini).
 <BR>
 <b>Note: You must have BOTH of these running at the same time in order to successfully make queries to the AI API's</b>  
