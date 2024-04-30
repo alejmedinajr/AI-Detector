@@ -84,7 +84,7 @@ export const AuthenticationForm = (props) => {
       signInWithEmailAndPassword(auth, userCredentials.email, userCredentials.password)
         .then((userCredential) => {
           props.onAuthenticate(true);
-          navigate('/login'); // Redirect to login page
+          navigate.push('/login'); // Redirect to login page
         })
         .catch((error) => {
           console.error(error.message);
