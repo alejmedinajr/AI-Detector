@@ -1,3 +1,4 @@
+// Import necessary React and Chakra UI components
 import React from 'react';
 import {
   Accordion,
@@ -8,10 +9,13 @@ import {
   Box,
   Button
 } from '@chakra-ui/react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom'; // Hook to enable navigation between routes
 
+// Define the FAQ component
 const FAQ = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // Hook to navigate to different routes
+
+  // Data for the FAQ section as an array of objects
   const faqData = [
     {
       question: 'How do I change my email address?',
@@ -32,24 +36,28 @@ const FAQ = () => {
   ];
 
   return (
+    // Container for the FAQ accordion and back button
     <Box>
+      // Accordion component from Chakra UI, set to allow multiple items open at once
       <Accordion allowMultiple>
+        // Map through the faqData array and create an AccordionItem for each FAQ entry
         {faqData.map((faq, index) => (
-          <AccordionItem key={index}>
+          <AccordionItem key={index}> // Unique key for each item based on index
             <h2>
-              <AccordionButton>
-                <Box flex="1" textAlign="left">
+              <AccordionButton> // Button that toggles the accordion's open/close state
+                <Box flex="1" textAlign="left"> // Box containing the question, styled for alignment
                   {faq.question}
                 </Box>
-                <AccordionIcon />
+                <AccordionIcon /> // Icon indicating the expand/collapse state
               </AccordionButton>
             </h2>
-            <AccordionPanel pb={4}>
+            <AccordionPanel pb={4}> // Panel that holds the answer, with padding bottom
               {faq.answer}
             </AccordionPanel>
           </AccordionItem>
         ))}
       </Accordion>
+      // Button to navigate back to the login page
       <Button colorScheme="blue" mt={4} onClick={() => navigate('/')}>
         Back to Login Page
       </Button>
@@ -57,4 +65,4 @@ const FAQ = () => {
   );
 };
 
-export default FAQ;
+export default FAQ; // Export the FAQ component for use in other parts of the application
